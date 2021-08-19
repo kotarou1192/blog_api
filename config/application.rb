@@ -23,6 +23,7 @@ module TodoTree
   class Application < Rails::Application
     # Initialize configuration defaults for originally generated Rails version.
     config.load_defaults 6.0
+    hosts_list = %w[api.takashiii-hq.org takashiii-hq.org takashiii-hq-api-production]
 
     # Settings in config/environments/* take precedence over those specified here.
     # Application configuration can go into files in config/initializers
