@@ -1,4 +1,4 @@
-class UserController < ApplicationController
+class UserCreationController < ApplicationController
   # ユーザー作成用メール送信
   # TODO: セッションの期限を決める
   def create
