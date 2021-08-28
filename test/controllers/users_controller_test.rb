@@ -18,7 +18,7 @@ class UserControllerTest < ActionDispatch::IntegrationTest
 
     #post '/users', params: {value: {session_id: session.session_id, password: valid_password, name: valid_name}}
 
-    user = User.find_by(email: valid_email)
+    #user = User.find_by(email: valid_email)
     # assert user
 
     # 悪魔の一行
