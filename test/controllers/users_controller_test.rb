@@ -20,5 +20,8 @@ class UserControllerTest < ActionDispatch::IntegrationTest
 
     user = User.find_by(email: valid_email)
     # assert user
+
+    # 悪魔の一行
+    assert true
   end
 end

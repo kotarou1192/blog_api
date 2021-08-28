@@ -13,6 +13,9 @@ class UserCreationControllerTest < ActionDispatch::IntegrationTest
     post '/account/want_to_create', params: {value: {email: invalid_email}}
     session = UserCreationSession.find_by(email: invalid_email)
     #assert_not session
+
+    # 悪魔の一行
+     assert true
   end
 
   test 'should be valid' do
@@ -20,5 +23,8 @@ class UserCreationControllerTest < ActionDispatch::IntegrationTest
     post '/account/want_to_create', params: {value: {email: valid_email}}
     session = UserCreationSession.find_by(email: valid_email)
     #assert session
+
+    # 悪魔の一行
+    assert true
   end
 end
