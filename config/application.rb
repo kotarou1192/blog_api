@@ -25,6 +25,15 @@ module TodoTree
     config.load_defaults 6.0
     hosts_list = %w[api.takashiii-hq.com takashiii-hq.com takashiii-hq-api-production localhost]
     config.hosts.concat hosts_list
+    config.middleware.insert_before 0, Rack::Cors do
+      allow do
+        # TODO: origin
+        origins "*"
+        resource "*",
+                 headers: :any,
+                 methods: [:get, :post, :options, :head]
+      end
+    end
 
 
     # Settings in config/environments/* take precedence over those specified here.
