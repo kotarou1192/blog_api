@@ -1,5 +1,6 @@
 class UserCreationController < ApplicationController
-  include Recaptcha::Adapters::ControllerMethods
+
+  RECAPTCHA_SITE_VERIFY_URL = 'https://www.google.com/recaptcha/api/siteverify'
 
   # not used
   # JS側で使う
@@ -13,10 +14,10 @@ class UserCreationController < ApplicationController
   # TODO: セッションの期限を決める
   def create
 
-    creation_session = UserCreationSession.new(user_creation_params)
-    unless verify_recaptcha(model: creation_session, minimum_score: 0.5, secret_key: RECAPTCHA_SECRET_KEY)
+    creation_session = UserCreationSession.new(email: user_creation_params[:email])
+    unless verified_google_recaptcha?(minimum_score: 0.5)
       puts "failed"
-      return render status: 400, json: {message: creation_session.errors.messages}
+      return render status: 400, json: {message: "you may be a robot"}
     end
 
     if creation_session.save
@@ -31,9 +32,18 @@ class UserCreationController < ApplicationController
 
   private
 
+  def verified_google_recaptcha?(minimum_score:)
+    return false unless minimum_score.is_a? Float
+
+    site_verify_uri = URI.parse("#{RECAPTCHA_SITE_VERIFY_URL}?response=#{params[:recaptcha_response]}&secret=#{RECAPTCHA_SECRET_KEY}")
+    raw_response = Net::HTTP.get_response(site_verify_uri)
+    response = JSON.parse(raw_response.body)
+    response['success'] && response['source'] > minimum_score
+  end
+
   def user_creation_params
     return {} if params[:value].nil?
 
-    params.require(:value).permit(:email)
+    params.require(:value).permit(:email, :recaptchaToken)
   end
 end
