@@ -48,7 +48,6 @@ class UserCreationController < ApplicationController
   end
 
   def request_to(token)
-    p token
     uri = URI.parse("#{RECAPTCHA_SITE_VERIFY_URL}?secret=#{RECAPTCHA_SECRET_KEY}&response=#{token}")
     recaptcha_raw_response = Net::HTTP.get_response(uri)
     JSON.parse(recaptcha_raw_response.body)
