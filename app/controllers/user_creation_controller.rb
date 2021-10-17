@@ -1,5 +1,7 @@
 class UserCreationController < ApplicationController
 
+  require "json"
+
   RECAPTCHA_SITE_VERIFY_URL = 'https://www.google.com/recaptcha/api/siteverify'
 
   # not used
@@ -12,12 +14,15 @@ class UserCreationController < ApplicationController
 
   # ユーザー作成用メール送信
   # TODO: セッションの期限を決める
+
+  @score = 0
+
   def create
 
     creation_session = UserCreationSession.new(email: user_creation_params[:email])
     unless verified_google_recaptcha?(minimum_score: 0.5)
-      puts "failed"
-      return render status: 400, json: {message: "you may be a robot"}
+      puts "failed. score = #{@score}"
+      return render status: 400, json: {message: "you may be a robot. score is #{@score}"}
     end
 
     if creation_session.save
@@ -35,9 +40,17 @@ class UserCreationController < ApplicationController
   def verified_google_recaptcha?(minimum_score:)
     return false unless minimum_score.is_a? Float
 
-    site_verify_uri = URI.parse("#{RECAPTCHA_SITE_VERIFY_URL}?response=#{params[:recaptcha_response]}&secret=#{RECAPTCHA_SECRET_KEY}")
-    raw_response = Net::HTTP.get_response(site_verify_uri)
+    json_data = JSON.generate({
+                                response: params[:recaptchaToken],
+                                secret: RECAPTCHA_SECRET_KEY
+                              })
+    headers = {
+      'Content-Type': 'application/json'
+    }
+    raw_response = Net::HTTP.request_post(RECAPTCHA_SITE_URL, json_data, headers)
     response = JSON.parse(raw_response.body)
+    p response
+    @score = response['score'] if response['score']
     response['success'] && response['source'] > minimum_score
   end
 
