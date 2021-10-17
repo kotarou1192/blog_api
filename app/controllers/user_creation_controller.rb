@@ -47,7 +47,7 @@ class UserCreationController < ApplicationController
     headers = {
       'Content-Type': 'application/json'
     }
-    raw_response = Net::HTTP.request_post(RECAPTCHA_SITE_URL, json_data, headers)
+    raw_response = Net::HTTP.request_post(RECAPTCHA_SITE_VERIFY_URL, json_data, headers)
     response = JSON.parse(raw_response.body)
     p response
     @score = response['score'] if response['score']
