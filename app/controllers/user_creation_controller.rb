@@ -1,6 +1,7 @@
 class UserCreationController < ApplicationController
 
   require "json"
+  require "net/http"
 
   RECAPTCHA_SITE_VERIFY_URL = 'https://www.google.com/recaptcha/api/siteverify'
 
@@ -40,18 +41,17 @@ class UserCreationController < ApplicationController
   def verified_google_recaptcha?(minimum_score:)
     return false unless minimum_score.is_a? Float
 
-    json_data = JSON.generate({
-                                response: params[:recaptchaToken],
-                                secret: RECAPTCHA_SECRET_KEY
-                              })
-    headers = {
-      'Content-Type': 'application/json'
-    }
-    raw_response = Net::HTTP.request_post(RECAPTCHA_SITE_VERIFY_URL, json_data, headers)
-    response = JSON.parse(raw_response.body)
+    response = request_to(RECAPTCHA_SECRET_KEY)
+
     p response
     @score = response['score'] if response['score']
     response['success'] && response['source'] > minimum_score
+  end
+
+  def request_to(token)
+    uri = URI.parse("#{RECAPTCHA_SITE_VERIFY_URL}?secret=#{RECAPTCHA_SECRET_KEY}&response=#{token}")
+    recaptcha_raw_response = Net::HTTP.get_response(uri)
+    JSON.parse(recaptcha_raw_response.body)
   end
 
   def user_creation_params
