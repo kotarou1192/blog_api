@@ -43,9 +43,8 @@ class UserCreationController < ApplicationController
 
     response = request_to(user_creation_params['recaptchaToken'])
 
-    p response
     @score = response['score'] if response['score']
-    response['success'] && response['source'] > minimum_score
+    response['success'] && response['score'] > minimum_score
   end
 
   def request_to(token)
