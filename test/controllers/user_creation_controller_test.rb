@@ -12,8 +12,6 @@ class UserCreationControllerTest < ActionDispatch::IntegrationTest
   end
 
 
-
-  # TODO: これらのテストがrecaptchaを通すようにした関係上全て通らないので、その対策を考える
   test 'invalid email should be rejected' do
     invalid_email = 'pow'
     post '/account/want_to_create', params: {value: {email: invalid_email}}
