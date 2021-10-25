@@ -1,7 +1,5 @@
 class UserCreationSession < Session
   before_save :downcase_email
-  # 有効期限
-  @expiration_days = 1
 
   VALID_EMAIL_REGEX = /\A[\w+\-.]+@[a-z\d\-]+(\.[a-z\d\-]+)*\.[a-z]+\z/i.freeze
   validates :email, presence: true, length: { maximum: 255 },
@@ -13,6 +11,11 @@ class UserCreationSession < Session
   end
 
   private
+
+  # 有効期限
+  def set_expiration_days
+    @expiration_days = 1
+  end
 
   # メールアドレスをすべて小文字にする
   def downcase_email

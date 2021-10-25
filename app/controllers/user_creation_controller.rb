@@ -28,6 +28,7 @@ class UserCreationController < ApplicationController
     end
 
     if creation_session.save
+      enqueue_creation_session(creation_session)
       creation_session.send_account_creation_email
       render json: { message: 'mail that includes account creation link has been sent' }
     else
@@ -38,6 +39,10 @@ class UserCreationController < ApplicationController
   end
 
   private
+
+  def enqueue_creation_session(session)
+    UserCreationSessionsCleanupJob.set(wait_until: session.date_limit).perform_later(session)
+  end
 
   def verified_google_recaptcha?(minimum_score:)
     return false unless minimum_score.is_a? Float

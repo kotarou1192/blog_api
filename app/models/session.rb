@@ -2,9 +2,9 @@ class Session < ActiveRecord::Base
   self.abstract_class = true
 
   before_create :generate_session_id
+  after_initialize :set_expiration_days
 
   DEFAULT_EXPIRATION_DAYS = 30
-  @expiration_days = 1
 
   def self.new_token
     SecureRandom.hex(64)
@@ -15,7 +15,22 @@ class Session < ActiveRecord::Base
     self.created_at > limit.days.ago
   end
 
+  def date_limit
+    Time.current.since(@expiration_days.days)
+  end
+
   private
+
+  # set days to delete
+  # implement it
+  #
+  # @expiration_days = Integer
+  #
+  def set_expiration_days
+    raise NotImplementedError, 'use set_expiration_days(number)'
+
+    @expiration_days = nil
+  end
 
   def generate_session_id
     100.times do
