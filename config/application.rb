@@ -25,6 +25,9 @@ module TodoTree
     config.load_defaults 6.0
     hosts_list = %w[api.takashiii-hq.com takashiii-hq.com takashiii-hq-api-production localhost]
     config.hosts.concat hosts_list
+
+    config.active_job.queue_adapter = :resque
+
     config.middleware.insert_before 0, Rack::Cors do
       allow do
         # TODO: origin
