@@ -39,7 +39,7 @@ set :repo_url, "https://github.com/kotarou1192/todo_tree_api.git"
 # set :ssh_options, verify_host_key: :secure
 
 # 共有する設定ファイル
-append :linked_files, 'config/environments/production.rb', 'config/database.yml', 'config/master.key', 'config/credentials.yml.enc'
+append :linked_files, 'config/environments/production.rb', 'config/database.yml', 'config/master.key'
 
 # Default value for linked_dirs is []
 append :linked_dirs, "log", "tmp/pids", "tmp/cache", "tmp/sockets"
