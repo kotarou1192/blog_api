@@ -12,6 +12,8 @@ class UserCreationController < ApplicationController
   # used
   RECAPTCHA_SECRET_KEY = Rails.application.credentials.recaptcha[:secret_key]
   # score ボット 0 --- 1 人間
+  #
+  FOR_TEST_SCORE = Rails.application.credentials.recaptcha[:test_score]
 
   # ユーザー作成用メール送信
   # TODO: セッションの期限を決める
@@ -22,7 +24,6 @@ class UserCreationController < ApplicationController
 
     creation_session = UserCreationSession.new(email: user_creation_params[:email])
     unless verified_google_recaptcha?(minimum_score: 0.5)
-      puts "failed. score = #{@score}"
       return render status: 400, json: {message: "you may be a robot. score is #{@score}"}
     end
 
@@ -43,8 +44,8 @@ class UserCreationController < ApplicationController
 
     response = request_to(user_creation_params['recaptchaToken'])
 
-    @score = response['score'] if response['score']
-    response['success'] && response['score'] > minimum_score
+    @score = response['score'] || FOR_TEST_SCORE
+    response['success'] && @score > minimum_score
   end
 
   def request_to(token)
