@@ -5,15 +5,33 @@ class UserCreationController < ApplicationController
 
   RECAPTCHA_SITE_VERIFY_URL = 'https://www.google.com/recaptcha/api/siteverify'
 
-  # not used
-  # JS側で使う
-  RECAPTCHA_SITE_KEY   = Rails.application.credentials.recaptcha[:site_key]
+  if Rails.env == "test"
+    # test_secret_key from here
+    # https://developers.google.com/recaptcha/docs/faq
+    test_site_key = '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI'
+    test_secret_key = '6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe'
 
-  # used
-  RECAPTCHA_SECRET_KEY = Rails.application.credentials.recaptcha[:secret_key]
-  # score ボット 0 --- 1 人間
-  #
-  FOR_TEST_SCORE = Rails.application.credentials.recaptcha[:test_score]
+    # not used
+    # JS側で使う
+    RECAPTCHA_SITE_KEY   = test_site_key
+
+    # used
+    RECAPTCHA_SECRET_KEY = test_secret_key
+    # score ボット 0 --- 1 人間
+    #
+    FOR_TEST_SCORE = 0.6
+  else
+    # not used
+    # JS側で使う
+    RECAPTCHA_SITE_KEY   = Rails.application.credentials.recaptcha[:site_key]
+
+    # used
+    RECAPTCHA_SECRET_KEY = Rails.application.credentials.recaptcha[:secret_key]
+    # score ボット 0 --- 1 人間
+    #
+    FOR_TEST_SCORE = Rails.application.credentials.recaptcha[:test_score]
+  end
+
 
   # ユーザー作成用メール送信
   # TODO: セッションの期限を決める
