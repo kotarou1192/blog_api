@@ -1,6 +1,10 @@
 class UsersController < ApplicationController
   def create
     creation_session = UserCreationSession.find_by(session_id: user_creation_params[:session_id])
+    unless creation_session
+      return render status: 400, json: { message: 'failed to create your account' }
+    end
+
     email = creation_session.email
     @user = User.new({email: email, password: user_creation_params[:password], name: user_creation_params[:name]})
 
