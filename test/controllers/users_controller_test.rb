@@ -5,13 +5,6 @@ class UserControllerTest < ActionDispatch::IntegrationTest
   #   assert true
   # end
   def setup
-    # test_secret_key from here
-    # https://developers.google.com/recaptcha/docs/faq
-    test_site_key = '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI'
-    test_secret_key = '6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe'
-    Rails.application.credentials.recaptcha[:secret_key] = test_secret_key
-    Rails.application.credentials.recaptcha[:site_key] = test_site_key
-    Rails.application.credentials.recaptcha[:test_score] = 0.6
   end
 
   test 'should be valid' do
