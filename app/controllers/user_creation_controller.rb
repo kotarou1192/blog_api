@@ -39,10 +39,9 @@ class UserCreationController < ApplicationController
   @score = 0
 
   def create
-
     creation_session = UserCreationSession.new(email: user_creation_params[:email])
-    unless verified_google_recaptcha?(minimum_score: 0.5)
-      return render status: 400, json: {message: "you may be a robot. score is #{@score}"}
+    if !User.find_by(email: user_creation_params[:email]).nil? || !verified_google_recaptcha?(minimum_score: 0.5)
+      return render status: 400, json: { message: 'failed' }
     end
 
     if creation_session.save
