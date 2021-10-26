@@ -71,7 +71,6 @@ jobs:
       - run:
           name: rename database.yml.ci
           command: mv config/database.yml.ci config/database.yml
-      - run: sudo service redis-server start
       - run: bundle exec rails db:create
       - run: bundle exec rails db:migrate
       - run:
