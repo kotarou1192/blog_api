@@ -37,6 +37,11 @@ GEM
       erubi (~> 1.4)
       rails-dom-testing (~> 2.0)
       rails-html-sanitizer (~> 1.1, >= 1.2.0)
+    active_model_serializers (0.10.12)
+      actionpack (>= 4.1, < 6.2)
+      activemodel (>= 4.1, < 6.2)
+      case_transform (>= 0.2)
+      jsonapi-renderer (>= 0.1.1.beta1, < 0.3)
     activejob (6.0.4)
       activesupport (= 6.0.4)
       globalid (>= 0.3.6)
@@ -58,6 +63,7 @@ GEM
       zeitwerk (~> 2.2, >= 2.2.2)
     airbrussh (1.4.0)
       sshkit (>= 1.6.1, != 1.7.0)
+    bcrypt (3.1.16)
     bcrypt_pbkdf (1.1.0)
     bootsnap (1.7.5)
       msgpack (~> 1.0)
@@ -84,6 +90,8 @@ GEM
       capistrano (~> 3.7)
       capistrano-bundler
       puma (>= 4.0, < 6.0)
+    case_transform (0.2)
+      activesupport
     concurrent-ruby (1.1.9)
     connection_pool (2.2.5)
     crass (1.0.6)
@@ -95,6 +103,8 @@ GEM
     i18n (1.8.10)
       concurrent-ruby (~> 1.0)
     json (2.5.1)
+    jsonapi-renderer (0.2.2)
+    jwt (2.3.0)
     listen (3.6.0)
       rb-fsevent (~> 0.10, >= 0.10.3)
       rb-inotify (~> 0.9, >= 0.9.10)
@@ -189,6 +199,8 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  active_model_serializers
+  bcrypt (~> 3.1.7)
   bcrypt_pbkdf
   bootsnap (>= 1.4.2)
   byebug
@@ -199,6 +211,7 @@ DEPENDENCIES
   capistrano-sidekiq
   capistrano3-puma
   ed25519
+  jwt
   listen (~> 3.2)
   pg
   puma (~> 4.1)
