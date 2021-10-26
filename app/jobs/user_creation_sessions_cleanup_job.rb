@@ -2,6 +2,6 @@ class UserCreationSessionsCleanupJob < ApplicationJob
   queue_as :default
 
   def perform(session)
-    session.destroy!
+    session.destroy
   end
 end

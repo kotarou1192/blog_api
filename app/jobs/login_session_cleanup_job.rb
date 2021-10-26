@@ -6,6 +6,6 @@ class LoginSessionCleanupJob < ApplicationJob
   # @return
   # TrueClass FalseClass
   def perform(session)
-    session.destroy!
+    session.destroy
   end
 end
