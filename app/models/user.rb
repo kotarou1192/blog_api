@@ -30,6 +30,10 @@ class User < ApplicationRecord
     self.password_digest = User.digest(password)
   end
 
+  def authenticated?(raw_password)
+    password_digest == User.digest(raw_password)
+  end
+
   # パスワードを更新する
   def update_password(new_password)
     self.password = new_password
