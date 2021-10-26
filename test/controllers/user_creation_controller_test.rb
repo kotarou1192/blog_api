@@ -18,4 +18,11 @@ class UserCreationControllerTest < ActionDispatch::IntegrationTest
     session = UserCreationSession.find_by(email: valid_email)
     assert session
   end
+
+  test 'should be invalid' do
+    valid_email = 'john1192@gmails.com'
+    User.create(email: valid_email, name: 'john1192', password: 'a' * 6)
+    post '/account/want_to_create', params: {value: {email: valid_email}}
+    assert @response.status == 400
+  end
 end
