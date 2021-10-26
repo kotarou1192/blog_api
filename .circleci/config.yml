@@ -46,8 +46,12 @@ jobs:
           key: v1-dependencies-{{ checksum "Gemfile.lock" }}
           paths:
             - vendor/bundle
-
+  machine:
+    environment:
+      REDIS_URL: redis://localhost:6379
   test:
+    pre:
+      - sudo service redis-server start
     docker:
       - image: circleci/ruby:2.7.2
         environment:
