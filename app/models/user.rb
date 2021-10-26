@@ -4,13 +4,14 @@ class User < ApplicationRecord
   before_save :downcase_email
   before_create :generate_uuid, :create_password_digest
 
-  VALID_NAME_REGEX = /\A[a-zA-Z0-9-]+\z/
+  VALID_NAME_REGEX = /\A[a-zA-Z0-9-]+\z/.freeze
   validates :name, format: { with: VALID_NAME_REGEX }, uniqueness: true, presence: true, length: { maximum: 30 }
   VALID_EMAIL_REGEX = /\A[\w+\-.]+@[a-z\d\-]+(\.[a-z\d\-]+)*\.[a-z]+\z/i.freeze
   validates :email, presence: true, length: { maximum: 255 },
-            format: { with: VALID_EMAIL_REGEX },
-            uniqueness: true
+                    format: { with: VALID_EMAIL_REGEX },
+                    uniqueness: true
   validates :password, presence: true, length: { minimum: 6 }, on: :create
+  has_many :login_sessions
 
   # トークンを生成
   # TODO: もヂュ―るかしても良いかもしれん
