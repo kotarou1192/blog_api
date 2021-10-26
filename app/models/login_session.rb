@@ -3,7 +3,7 @@ class LoginSession < Session
   belongs_to :user
   MAX_SESSION_NUMBERS = 10
 
-  validate :sessions_numbers_limit
+  before_create :sessions_numbers_limit
 
   private
 
@@ -14,12 +14,11 @@ class LoginSession < Session
 
   # 規定時間後に削除
   def cleanup
-    LoginSessionCleanupJob.set(wait_until: date_limit).perform_later(self)
+    LoginSessionCleanupJob.set(wait_until: date_limit).perform_later(session_id)
   end
 
+  # 制限以上に作成されると古いものを消して更新
   def sessions_numbers_limit
-    result = user.login_sessions.count <= MAX_SESSION_NUMBERS
-    errors.add :base, 'too many login_sessions' unless result
-    result
+    user.login_sessions.first.destroy if user.login_sessions.count >= MAX_SESSION_NUMBERS
   end
 end

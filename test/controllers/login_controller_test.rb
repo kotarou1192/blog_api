@@ -15,6 +15,21 @@ class LoginControllerTest < ActionDispatch::IntegrationTest
     assert @response.status == 200
   end
 
+  test 'token should be refreshed' do
+    valid_email = @user.email
+    valid_password = 'password'
+
+    tokens = 10.times.map do
+      post '/users/login', params: { value: { email: valid_email, password: valid_password } }
+      res = JSON.parse @response.body
+      res['token']
+    end
+    post '/users/login', params: { value: { email: valid_email, password: valid_password } }
+
+    new_token = (JSON.parse @response.body)['token']
+    assert new_token && tokens.none?(new_token)
+  end
+
   test 'invalid password should be rejected' do
     valid_email = @user.email
     invalid_password = 'password' << 'invalid'

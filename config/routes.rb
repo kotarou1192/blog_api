@@ -3,4 +3,9 @@ Rails.application.routes.draw do
   post '/users/login', to: 'login#create'
   resources :users, only: %i[show create destroy update]
   post '/account/want_to_create', to: 'user_creation#create'
+
+  if Rails.env == 'development'
+    require 'sidekiq/web'
+    mount Sidekiq::Web => '/sidekiq'
+  end
 end

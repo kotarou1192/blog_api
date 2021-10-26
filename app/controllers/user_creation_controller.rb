@@ -58,7 +58,7 @@ class UserCreationController < ApplicationController
   private
 
   def enqueue_creation_session(session)
-    UserCreationSessionsCleanupJob.set(wait_until: session.date_limit).perform_later(session)
+    UserCreationSessionsCleanupJob.set(wait_until: session.date_limit).perform_later(session.session_id)
   end
 
   def verified_google_recaptcha?(minimum_score:)

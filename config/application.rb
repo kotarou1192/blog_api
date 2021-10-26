@@ -15,18 +15,28 @@ require "action_cable/engine"
 # require "sprockets/railtie"
 require "rails/test_unit/railtie"
 
+
 # Require the gems listed in Gemfile, including any gems
 # you've limited to :test, :development, or :production.
 Bundler.require(*Rails.groups)
 
 module TodoTree
   class Application < Rails::Application
+    if Rails.env == 'development'
+      # This also configures session_options for use below
+      config.session_store :cookie_store, key: '_interslice_session'
+
+      # Required for all session management (regardless of session_store)
+      config.middleware.use ActionDispatch::Cookies
+
+      config.middleware.use config.session_store, config.session_options
+    end
     # Initialize configuration defaults for originally generated Rails version.
     config.load_defaults 6.0
     hosts_list = %w[api.takashiii-hq.com takashiii-hq.com takashiii-hq-api-production localhost]
     config.hosts.concat hosts_list
 
-    config.active_job.queue_adapter = :resque
+    config.active_job.queue_adapter = :sidekiq
 
     config.middleware.insert_before 0, Rack::Cors do
       allow do

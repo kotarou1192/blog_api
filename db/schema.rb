@@ -16,12 +16,11 @@ ActiveRecord::Schema.define(version: 2021_10_26_000820) do
   enable_extension "plpgsql"
 
   create_table "login_sessions", force: :cascade do |t|
-    t.bigint "user_id"
+    t.string "user_id"
     t.string "token_digest"
     t.string "session_id"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
-    t.index ["user_id"], name: "index_login_sessions_on_user_id"
   end
 
   create_table "user_creation_sessions", force: :cascade do |t|
@@ -40,4 +39,5 @@ ActiveRecord::Schema.define(version: 2021_10_26_000820) do
     t.datetime "updated_at", precision: 6, null: false
   end
 
+  add_foreign_key "login_sessions", "users"
 end

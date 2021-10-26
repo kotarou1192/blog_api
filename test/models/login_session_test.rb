@@ -14,10 +14,12 @@ class LoginSessionTest < ActiveSupport::TestCase
   end
 
   test "session numbers should be less than #{LoginSession::MAX_SESSION_NUMBERS}" do
-    done = true
-    (LoginSession::MAX_SESSION_NUMBERS + 1).times do
-      done = false if @user.login_sessions.create
+    tokens = LoginSession::MAX_SESSION_NUMBERS.times.map do
+      session = @user.login_sessions.create
+      session.session_id
     end
-    assert_not done
+    new_token = @user.login_sessions.create.session_id
+
+    assert new_token && tokens.none?(new_token)
   end
 end
