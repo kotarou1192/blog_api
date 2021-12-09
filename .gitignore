@@ -32,3 +32,4 @@
 /config/master.key
 database.yml
 .session.key
+dump.rdb
