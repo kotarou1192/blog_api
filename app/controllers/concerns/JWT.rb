@@ -1,24 +1,29 @@
 # frozen_string_literal: true
 
+require 'openssl'
+require 'base64'
+require 'json'
+
 # JWT Authorization
 #
 # Supported algorithms:
 # HS256
 #
-module JWT
+class JWT
   # ==initialize()
-  # initialize JWT class
-  # ==tempered?()
-  # check given token correct
+  # * initialize JWT class
+  #
+  # ==tampered?()
+  # * check given token correct
+  #
   # ==generate()
-  # generate jwt
+  # * generate jwt
+  #
   # ==decode()
-  # parse jwt
+  # * parse jwt
+  #
   class Provider
     extend ActiveSupport::Concern
-    require 'OpenSSL'
-    require 'base64'
-    require 'JSON'
     # reject 'alg: none'
     ALLOWED_ALG_TYPES = %w[hs256].freeze
     JWT_ALG_TO_HASH_ALG = {
@@ -30,24 +35,29 @@ module JWT
       raise TypeError, "algorithm type: #{algorithm} is incorrect" if ALLOWED_ALG_TYPES.none? algorithm.downcase
 
       @alg = algorithm.downcase
-      @key = private_key
+      key = private_key.dup
+      @key = proc { key }
     end
 
-    def tempered?(jwt)
+    # string required
+    def tampered?(jwt)
       parsed = decode jwt
       signature = parsed.pop
 
       unsigned_token = parsed.map { |obj| Base64.urlsafe_encode64 JSON.generate obj }.join('.').delete('=')
 
-      signature == sign(unsigned_token)
+      signature != sign(unsigned_token)
+    rescue TypeError, ArgumentError, JSON::ParserError
+      true
     end
 
-    def generate(payload_hash)
-      header = {
-        alg: @alg,
-        typ: CONTENT_TYPE
+    def generate(name:, sub:)
+      header = { alg: @alg, typ: CONTENT_TYPE }
+      payload = {
+        sub: sub,
+        iat: Time.now.to_i,
+        name: name
       }
-      payload = payload_hash
       unsigned_token = Base64.urlsafe_encode64(JSON.generate(header)).delete('=') << '.' << Base64.urlsafe_encode64(JSON.generate(payload)).delete('=')
       signature = sign unsigned_token
       unsigned_token << '.' << signature
@@ -66,8 +76,12 @@ module JWT
 
     private
 
+    def key
+      @key.call
+    end
+
     def sign(data)
-      OpenSSL::HMAC.hexdigest(JWT_ALG_TO_HASH_ALG[@alg], @key, data)
+      OpenSSL::HMAC.hexdigest(JWT_ALG_TO_HASH_ALG[@alg], key, data)
     end
   end
 end
