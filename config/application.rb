@@ -1,19 +1,20 @@
 require_relative 'boot'
 
-require "rails"
+require 'rails'
 # Pick the frameworks you want:
-require "active_model/railtie"
-require "active_job/railtie"
-require "active_record/railtie"
-require "active_storage/engine"
-require "action_controller/railtie"
-require "action_mailer/railtie"
-require "action_mailbox/engine"
-require "action_text/engine"
-require "action_view/railtie"
-require "action_cable/engine"
+require 'active_model/railtie'
+require 'active_job/railtie'
+require 'active_record/railtie'
+require 'active_storage/engine'
+require 'action_controller/railtie'
+require 'action_mailer/railtie'
+require 'action_mailbox/engine'
+require 'action_text/engine'
+require 'action_view/railtie'
+require 'action_cable/engine'
 # require "sprockets/railtie"
-require "rails/test_unit/railtie"
+require 'rails/test_unit/railtie'
+require 'resolv'
 
 
 # Require the gems listed in Gemfile, including any gems
@@ -41,10 +42,11 @@ module TodoTree
     config.middleware.insert_before 0, Rack::Cors do
       allow do
         # TODO: origin
-        origins "*"
-        resource "*",
+        hosts_list << Resolv::DNS.new(nameserver: 'ns1.google.com').getresources('o-o.myaddr.l.google.com', Resolv::DNS::Resource::IN::TXT)[0].strings[0]
+        origins hosts_list
+        resource '*',
                  headers: :any,
-                 methods: [:get, :post, :options, :head]
+                 methods: %i[get post options head]
       end
     end
 
