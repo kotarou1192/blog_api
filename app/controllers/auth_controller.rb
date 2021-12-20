@@ -9,11 +9,12 @@ class AuthController < ApplicationController
   # what is jwt
   # https://qiita.com/Naoto9282/items/8427918564400968bd2b
   JWT_SECRET_KEY = Rails.env == 'test' ? 'secret' : Rails.application.credentials[:jwt_key]
+  LOGIN_DATE_OF_EXPIRY = 10
   def create
     user = User.find_by(email: login_params[:email])
     if user&.authenticated?(login_params[:password])
       jwt = JWT::Provider.new(private_key: JWT_SECRET_KEY)
-      token = jwt.generate(name: user.id, sub: request.domain)
+      token = jwt.generate(name: user.id, sub: request.domain, lim_days: LOGIN_DATE_OF_EXPIRY)
       render json: { token: token }
     else
       login_error

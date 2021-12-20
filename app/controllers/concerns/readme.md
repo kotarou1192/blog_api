@@ -3,14 +3,15 @@
 
 RFC 7519 in japanese ->  https://tex2e.github.io/rfc-translater/html/rfc7519.html  
 
-usage  
+usage
+
 ```ruby
 require 'concern/JWT' # you have to require correct path
 
 jwt_provider = JWT::Provider.new(private_key: 'your private key')
 token = jwt_provider.generate(sub: 'your server name', name: 'account id or other')
 parsed_jwt_data = jwt_provider.decode(token)
-if jwt_provider.tampered?(token)
+if jwt_provider.valid?(token)
   puts 'this token has been tampered'
   return
 end

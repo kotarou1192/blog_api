@@ -13,7 +13,7 @@ class JWT
   # ==initialize()
   # * initialize JWT class
   #
-  # ==tampered?()
+  # ==valid?()
   # * check given token correct
   #
   # ==generate()
@@ -40,23 +40,25 @@ class JWT
     end
 
     # string required
-    def tampered?(jwt)
+    def valid?(jwt)
       parsed = decode jwt
       signature = parsed.pop
+      return false if Time.at(parsed[1]['exp']) < Time.now
 
       unsigned_token = parsed.map { |obj| Base64.urlsafe_encode64 JSON.generate obj }.join('.').delete('=')
 
-      signature != sign(unsigned_token)
+      signature == sign(unsigned_token)
     rescue TypeError, ArgumentError, JSON::ParserError
-      true
+      false
     end
 
-    def generate(name:, sub:)
+    def generate(name:, sub:, lim_days:)
       header = { alg: @alg, typ: CONTENT_TYPE }
       payload = {
         sub: sub,
         iat: Time.now.to_i,
-        name: name
+        name: name,
+        exp: lim_days.days.since.to_i
       }
       unsigned_token = Base64.urlsafe_encode64(JSON.generate(header)).delete('=') << '.' << Base64.urlsafe_encode64(JSON.generate(payload)).delete('=')
       signature = sign unsigned_token
