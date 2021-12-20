@@ -66,3 +66,13 @@ namespace :deploy do
   end
 end
 
+namespace :deploy do
+  desc "Restart sidekiq"
+  task :restart_sidekiq do
+    on roles(:app), in: :sequence, wait: 5 do
+      execute :sudo, :systemctl, :restart, :sidekiq
+    end
+  end
+
+  after :finishing, 'deploy:restart_sidekiq'
+end
