@@ -34,7 +34,7 @@ module TodoTree
     end
     # Initialize configuration defaults for originally generated Rails version.
     config.load_defaults 6.0
-    hosts_list = %w[api.takashiii-hq.com takashiii-hq.com takashiii-hq-api-production localhost:8080]
+    hosts_list = %w[api.takashiii-hq.com takashiii-hq.com localhost:8080]
 
     config.active_job.queue_adapter = :sidekiq
 
