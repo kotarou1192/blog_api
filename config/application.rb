@@ -43,7 +43,7 @@ module TodoTree
     config.middleware.insert_before 0, Rack::Cors do
       allow do
         # TODO: origin
-        origins '*'
+        origins hosts_list
         resource '*',
                  headers: :any,
                  methods: %i[get post put delete options head]
