@@ -3,6 +3,7 @@
 require 'concerns/JWT'
 
 class AuthController < ApplicationController
+  include GoogleRecaptcha
 
   # impl
   # https://qiita.com/shu1124/items/e8c37b73e015afc63074
@@ -12,6 +13,11 @@ class AuthController < ApplicationController
   LOGIN_DATE_OF_EXPIRY = 10
   def create
     user = User.find_by(email: login_params[:email])
+
+    unless verified_google_recaptcha?(minimum_score: 0.5, recaptcha_token: login_params[:recaptchaToken])
+      return login_error
+    end
+
     if user&.authenticated?(login_params[:password])
       jwt = JWT::Provider.new(private_key: JWT_SECRET_KEY)
       token = jwt.generate(name: user.id, user_name: user.name, sub: request.domain, lim_days: LOGIN_DATE_OF_EXPIRY)
@@ -24,10 +30,10 @@ class AuthController < ApplicationController
   private
 
   def login_error
-    render json: { error: { messages: ['mistake email or password'] } }, status: :unauthorized
+    render json: { error: { messages: ['failed'] } }, status: :unauthorized
   end
 
   def login_params
-    params.require(:value).permit(:email, :password)
+    params.require(:value).permit(:email, :password, :recaptchaToken)
   end
 end
