@@ -46,7 +46,7 @@ module TodoTree
         origins hosts_list
         resource '*',
                  headers: :any,
-                 methods: %i[get post options head]
+                 methods: %i[:get, :post, :put, :delete, :options, :head]
       end
     end
 

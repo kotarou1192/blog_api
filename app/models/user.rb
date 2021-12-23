@@ -19,6 +19,17 @@ class User < ApplicationRecord
     SecureRandom.hex(64)
   end
 
+  def self.search(keywords, page, max_content = 50)
+    User.find_by_sql(User.arel_table
+                         .project('result.name')
+                         .from(search_with_keywords(keywords).as('result'))
+                         .group('result.name')
+                         .order('count(*) desc') # ここに評価値みたいなのを入れるといいかもしれない
+                         .take(max_content)
+                         .skip(max_content * (page - 1))
+                         .to_sql)
+  end
+
   # ハッシュ化する
   # TODO: モジュール化しても良いかも
   def self.digest(string)
@@ -46,6 +57,17 @@ class User < ApplicationRecord
   end
 
   private
+
+  def self.search_with_keywords(keywords, index = 0)
+    keyword = keywords[index]
+    user = User.arel_table
+    users = user.project('*').from('users')
+                .where(user[:name].matches(keyword))
+
+    return users if keywords.size - 1 <= index
+
+    Arel::Nodes::UnionAll.new(users, search_with_keywords(keywords, index + 1))
+  end
 
   # メールアドレスをすべて小文字にする
   def downcase_email
