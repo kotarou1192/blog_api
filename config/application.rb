@@ -34,15 +34,16 @@ module TodoTree
     end
     # Initialize configuration defaults for originally generated Rails version.
     config.load_defaults 6.0
-    hosts_list = %w[api.takashiii-hq.com takashiii-hq.com takashiii-hq-api-production localhost:3000]
-    config.hosts.concat hosts_list
+    hosts_list = %w[api.takashiii-hq.com takashiii-hq.com takashiii-hq-api-production localhost:8080]
 
     config.active_job.queue_adapter = :sidekiq
+
+    Rails.application.config.hosts << hosts_list
 
     Rails.application.config.middleware.insert_before 0, Rack::Cors do
       allow do
         # TODO: origin
-        origins 'https://api.takashiii-hq.com', 'https://takashiii-hq.com'
+        origins '*'
         resource '*',
                  headers: :any,
                  methods: %i[:get, :post, :put, :delete, :options, :head]
