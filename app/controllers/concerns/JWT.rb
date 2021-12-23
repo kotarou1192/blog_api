@@ -52,12 +52,13 @@ class JWT
       false
     end
 
-    def generate(name:, sub:, lim_days:)
+    def generate(name:, sub:, lim_days:, user_name: '')
       header = { alg: @alg, typ: CONTENT_TYPE }
       payload = {
         sub: sub,
         iat: Time.now.to_i,
         name: name,
+        user_name: user_name,
         exp: lim_days.days.since.to_i
       }
       unsigned_token = Base64.urlsafe_encode64(JSON.generate(header)).delete('=') << '.' << Base64.urlsafe_encode64(JSON.generate(payload)).delete('=')
