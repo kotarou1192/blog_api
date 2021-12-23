@@ -38,7 +38,7 @@ module TodoTree
 
     config.active_job.queue_adapter = :sidekiq
 
-    Rails.application.config.hosts << hosts_list
+    config.hosts.concat hosts_list
 
     config.middleware.insert_before 0, Rack::Cors do
       allow do
