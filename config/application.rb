@@ -34,7 +34,7 @@ module TodoTree
     end
     # Initialize configuration defaults for originally generated Rails version.
     config.load_defaults 6.0
-    hosts_list = %w[api.takashiii-hq.com takashiii-hq.com takashiii-hq-api-production localhost]
+    hosts_list = %w[api.takashiii-hq.com takashiii-hq.com takashiii-hq-api-production localhost:3000]
     config.hosts.concat hosts_list
 
     config.active_job.queue_adapter = :sidekiq
@@ -43,7 +43,7 @@ module TodoTree
       allow do
         # TODO: origin
         hosts_list << Resolv::DNS.new(nameserver: 'ns1.google.com').getresources('o-o.myaddr.l.google.com', Resolv::DNS::Resource::IN::TXT)[0].strings[0]
-        origins hosts_list
+        origins 'https://api.takashiii-hq.com', 'https://takashiii-hq.com'
         resource '*',
                  headers: :any,
                  methods: %i[:get, :post, :put, :delete, :options, :head]
