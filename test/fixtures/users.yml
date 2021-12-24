@@ -4,7 +4,9 @@
 # model remove the '{}' from the fixture names and add the columns immediately
 # below each fixture, per the syntax in the comments below
 #
-one: {email: 'test@example.com',
+one: {
+      id: '73399adc-57ee-40c2-8d07-26215e93fbd7',
+      email: 'test@example.com',
       name: 'test_user',
       password_digest: <%=User.digest('password') %>,
 }
