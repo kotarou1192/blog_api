@@ -7,7 +7,16 @@ class PostsController < ApplicationController
   def index
     return user_not_found_error unless @target_user
 
-    posts = @target_user.posts.select(:id, :user_id, :created_at, :updated_at, :title).order('created_at DESC')
+    posts = @target_user.posts.select(:id, :user_id, :created_at, :updated_at, :title).order('created_at DESC').map do |post|
+      {
+        id: post.id,
+        user_id: post.user_id,
+        title: post.title,
+        created_at: post.created_at.to_i,
+        updated_at: post.updated_at.to_i
+      }
+    end
+
     render json: posts
   end
 
