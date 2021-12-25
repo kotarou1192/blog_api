@@ -18,7 +18,7 @@ class PostsController < ApplicationController
     return user_not_found_error unless @target_user
     return post_not_found_error unless @post
 
-    render json: post_data(@post)
+    render json: post_data(@post, has_body: true)
   end
 
   def create
@@ -56,14 +56,14 @@ class PostsController < ApplicationController
 
   private
 
-  def post_data(post)
+  def post_data(post, has_body: false)
     {
       id: post.id,
       user_id: post.user_id,
       title: post.title,
       created_at: post.created_at.to_i,
       updated_at: post.updated_at.to_i
-    }
+    }.merge(has_body ? { body: post.body } : {})
   end
 
   def post_not_found_error
