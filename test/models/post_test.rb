@@ -32,4 +32,28 @@ class PostTest < ActiveSupport::TestCase
     post = @user.posts.new(title: 'title', body: 'a' * 6001)
     assert_not post.save
   end
+
+  test 'should be removed' do
+    post = @user.posts.create(title: 'title', body: 'body')
+    assert post.destroy
+  end
+
+  test 'should be updated' do
+    params = {
+      title: '',
+      body: 'updated_body'
+    }
+    post = @user.posts.create(title: 'title', body: 'body')
+    assert post.update(params)
+    assert post.title == 'NoTitle'
+  end
+
+  test 'should not be updated' do
+    params = {
+      title: '',
+      body: ''
+    }
+    post = @user.posts.create(title: 'title', body: 'body')
+    assert_not post.update params
+  end
 end
