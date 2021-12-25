@@ -5,16 +5,15 @@
 # below each fixture, per the syntax in the comments below
 #
 one: {
-      id: '73399adc-57ee-40c2-8d07-26215e93fbd7',
-      email: 'test@example.com',
-      name: 'test_user',
-      password_digest: <%=User.digest('password') %>,
+       title: 'title_one',
+       user_id: '73399adc-57ee-40c2-8d07-26215e93fbd7',
+       body: 'body_one',
 }
 # column: value
 #
 two: {
-      email: 'test2@example.com',
-      name: 'test_user_2',
-      password_digest: <%=User.digest('password') %>,
+       title: 'title_two',
+       user_id: '73399adc-57ee-40c2-8d07-26215e93fbd7',
+       body: 'body_two',
 }
 # column: value
