@@ -12,6 +12,7 @@ class User < ApplicationRecord
                     uniqueness: true
   validates :password, presence: true, length: { minimum: 6 }, on: :create
   has_many :login_sessions
+  has_many :posts
 
   # トークンを生成
   # TODO: もヂュ―るかしても良いかもしれん
