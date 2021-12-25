@@ -2,6 +2,9 @@ Rails.application.routes.draw do
   # For details on the DSL available within this file, see https://guides.rubyonrails.org/routing.html
   resources :auth, only: %i[create destroy]
   resources :users, only: %i[show create destroy update]
+  resources :users, param: :name, only: %i[show] do
+    resources :posts, only: %i[index show create destroy update]
+  end
   get '/search/users', to: 'search_users#index'
   post '/account/want_to_create', to: 'user_creation#create'
 
