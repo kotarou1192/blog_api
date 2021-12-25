@@ -8,13 +8,7 @@ class PostsController < ApplicationController
     return user_not_found_error unless @target_user
 
     posts = @target_user.posts.select(:id, :user_id, :created_at, :updated_at, :title).order('created_at DESC').map do |post|
-      {
-        id: post.id,
-        user_id: post.user_id,
-        title: post.title,
-        created_at: post.created_at.to_i,
-        updated_at: post.updated_at.to_i
-      }
+      post_data post
     end
 
     render json: posts
@@ -24,7 +18,7 @@ class PostsController < ApplicationController
     return user_not_found_error unless @target_user
     return post_not_found_error unless @post
 
-    render json: @post
+    render json: post_data(@post)
   end
 
   def create
@@ -61,6 +55,16 @@ class PostsController < ApplicationController
   end
 
   private
+
+  def post_data(post)
+    {
+      id: post.id,
+      user_id: post.user_id,
+      title: post.title,
+      created_at: post.created_at.to_i,
+      updated_at: post.updated_at.to_i
+    }
+  end
 
   def post_not_found_error
     render json: { message: "the post id: #{allowed_params[:id]} does not exist." }, status: :not_found
