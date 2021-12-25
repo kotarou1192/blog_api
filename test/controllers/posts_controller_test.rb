@@ -45,10 +45,13 @@ class PostsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'be able to edit my post' do
+    tmp_post = @user.posts.create(title: 'any', body: 'random')
     title = 'edited_title'
     body = 'edited_body'
-    put "/users/#{@user.name}/posts/#{@post.id}", params: { title: title, body: body }, headers: authorize_header
-    assert @post.title == title && @post.body == body
+    put "/users/#{@user.name}/posts/#{tmp_post.id}", params: { title: title, body: body }, headers: authorize_header
+
+    edited_post = Post.find(tmp_post.id)
+    assert edited_post.title == title && edited_post.body == body
   end
 
   test 'be not able to edit other person\'s any post' do
@@ -59,13 +62,15 @@ class PostsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'be able to delete my any post' do
-    delete "/users/#{@user.name}/posts/#{@post.id}", headers: authorize_header
-    assert_not Post.find(@post.id)
+    tmp_post = @user.posts.create(title: 'any', body: 'random')
+    delete "/users/#{@user.name}/posts/#{tmp_post.id}", headers: authorize_header
+    assert_not Post.find_by(id: tmp_post.id)
   end
 
   test 'be not able to delete other person\'s any post' do
     not_own_post = @other_user.posts.create(title: 'others_title', body: 'others_body')
     delete "/users/#{@user.name}/posts/#{not_own_post.id}", headers: authorize_header
-    assert @response.status.must_be 401
+
+    assert @response.status == 401
   end
 end
