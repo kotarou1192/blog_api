@@ -7,7 +7,7 @@ class PostsController < ApplicationController
   def index
     return user_not_found_error unless @target_user
 
-    posts = @target_user.posts
+    posts = @target_user.posts.select(:id, :user_id, :created_at, :updated_at, :title).order('created_at DESC')
     render json: posts
   end
 
