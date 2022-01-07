@@ -1,4 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ProjectRootManager" version="2" project-jdk-name="rbenv: 2.7.0" project-jdk-type="RUBY_SDK" />
+  <component name="UnattendedHostPersistenceState">
+    <option name="openedFilesInfos">
+      <list>
+        <OpenedFileInfo>
+          <option name="caretOffset" value="0" />
+          <option name="fileUrl" value="file://$PROJECT_DIR$/test/controllers/jwt_module_test.rb" />
+        </OpenedFileInfo>
+      </list>
+    </option>
+  </component>
 </project>

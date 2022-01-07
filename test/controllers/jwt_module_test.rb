@@ -42,6 +42,12 @@ class JWTModuleTest < ActionDispatch::IntegrationTest
     assert_not @jwt.valid?('12345')
   end
 
+  test 'jwt still be valid' do
+      token = @jwt.generate(name: 'bob', sub: 'sub', lim_days: 10)
+      travel_to 9.days.since
+      assert @jwt.valid? token
+    end
+
   test 'old jwt should be rejected' do
     token = @jwt.generate(name: 'bob', sub: 'sub', lim_days: 10)
     travel_to 100.days.since
