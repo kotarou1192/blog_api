@@ -6,6 +6,7 @@ Rails.application.routes.draw do
     resources :posts, only: %i[index show create destroy update]
   end
   get '/search/users', to: 'search_users#index'
+  get '/search/posts', to: 'search_posts#index'
   post '/account/want_to_create', to: 'user_creation#create'
 
   if Rails.env == 'development'
