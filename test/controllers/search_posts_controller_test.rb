@@ -75,9 +75,10 @@ class SearchPostsControllerTest < ActionDispatch::IntegrationTest
     100.times.each.with_index do |i, index|
       user.posts.new(title: "test-#{i}", body: "body-#{i}", id: index + 3).save
     end
+    post = user.posts.create(id: 1_192_296, title: 'super old', body: 'grand mam', created_at: 1000.days.ago)
     keyword = 'one _'
     get "/search/posts?keywords=#{keyword}&max_contents=55&page=1&order_type=old"
     res = JSON.parse @response.body
-    assert res[0]['id'] == 1
+    assert res[0]['id'] == post.id
   end
 end
