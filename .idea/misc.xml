@@ -5,8 +5,12 @@
     <option name="openedFilesInfos">
       <list>
         <OpenedFileInfo>
+          <option name="caretOffset" value="1261" />
+          <option name="fileUrl" value="file://$PROJECT_DIR$/config/application.rb" />
+        </OpenedFileInfo>
+        <OpenedFileInfo>
           <option name="caretOffset" value="0" />
-          <option name="fileUrl" value="file://$PROJECT_DIR$/test/controllers/jwt_module_test.rb" />
+          <option name="fileUrl" value="file://$PROJECT_DIR$/app/controllers/posts_controller.rb" />
         </OpenedFileInfo>
       </list>
     </option>
