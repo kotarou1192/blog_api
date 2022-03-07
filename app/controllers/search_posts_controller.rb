@@ -29,7 +29,7 @@ class SearchPostsController < ApplicationController
       id: post.id,
       title: post.title,
       body: post.body.slice(0, MAX_BODY_CHARS),
-      created_at: post.created_at
+      created_at: post.created_at.to_i
     }
   end
 
