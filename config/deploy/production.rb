@@ -59,7 +59,7 @@
 #     auth_methods: %w(publickey password)
 #     # password: "please use keys"
 #   }
-server 'takashiii-hq.com', user: 'rails', roles: %w[app db]
+server 'blog-md.net', user: 'rails', roles: %w[app db]
 
 set :rails_env, 'production'
 set :branch, 'master'
