@@ -47,6 +47,7 @@ class UserTest < ActiveSupport::TestCase
   end
 
   test 'icon can be updated' do
-    assert @user.update(icon: 'something base 64 encoded')
+    file = File.open('img.png', 'r')
+    assert @user.icon.attach(io: file, filename: 'img.png')
   end
 end

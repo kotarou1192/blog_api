@@ -22,16 +22,29 @@ class UsersController < ApplicationController
     user = User.find_by(name: user_name)
     return render json: { error: { message: ['not found'] } }, status: :not_found unless user
 
-    render json: user_to_hash(user).merge({ is_my_page: @user ? user.id == @user.id : false })
+    render json: user.to_response_data.merge({ is_my_page: @user ? user.id == @user.id : false })
+  end
+
+  def update
+    return authenticate_failed unless authenticated?
+
+    return render json: { massage: 'updated your account' } if @user.update_with_image(user_params)
+
+    render status: 400, json: { messages: '@user.errors.messages' }
+  end
+
+  def delete
+    return authenticate_failed unless authenticated?
+
+    return render json: { massage: 'updated your account' } if @user.destroy
+
+    render status: 400, json: { messages: @user.errors.messages }
   end
 
   private
 
-  def user_to_hash(model)
-    {
-      uuid: model.id,
-      name: model.name
-    }
+  def user_params
+    params.require(:value).permit(:explanation, :icon)
   end
 
   def user_creation_params

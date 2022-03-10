@@ -9,6 +9,8 @@ Rails.application.configure do
   config.cache_classes = false
   config.action_view.cache_template_loading = true
 
+  config.active_storage.service = :test
+
   # Do not eager load code on boot. This avoids loading your whole application
   # just for the purpose of running a single test. If you are using a tool that
   # preloads Rails for running tests, you may have to set it to true.
@@ -43,7 +45,7 @@ Rails.application.configure do
 
   # Print deprecation notices to the stderr.
   config.active_support.deprecation = :stderr
-  config.hosts << "www.example.com"
+  config.hosts << 'www.example.com'
 
   # Raises error for missing translations.
   # config.action_view.raise_on_missing_translations = true

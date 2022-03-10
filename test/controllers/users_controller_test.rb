@@ -12,6 +12,11 @@ class UserControllerTest < ActionDispatch::IntegrationTest
     @user = User.find_by(name: 'test_user')
   end
 
+  def after_teardown
+    super
+    FileUtils.rm_rf(ActiveStorage::Blob.service.root)
+  end
+
   test 'should be valid' do
     valid_email = 'pow@pow.com'
     valid_password = 'password1234'
@@ -39,8 +44,16 @@ class UserControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'should not be mine with token' do
-    get '/users/test_user_2', headers: { Authorization: "bearer #{@token}" }
+    get '/users/test_user_2', headers: { Authorization: "Bearer #{@token}" }
     res = JSON.parse @response.body
     assert_not res['is_my_page']
+  end
+
+  test 'user should be updated' do
+    new_name = 'new-name'
+    new_exp = 'this is my account.'
+    file_encoded = Base64.urlsafe_encode64 File.read('./img.png')
+    put '/users/test_user', params: { value: { name: new_name, explanation: new_exp, icon: file_encoded } },
+                            headers: { Authorization: "Bearer #{@token}" }
   end
 end

@@ -1,4 +1,6 @@
 class User < ApplicationRecord
+  # https://railsguides.jp/active_storage_overview.html
+  has_one_attached :icon
   attr_accessor :password
 
   EXP_CHAR_NUMBERS = 255
@@ -61,6 +63,14 @@ class User < ApplicationRecord
     end
   end
 
+  def update_with_image(params)
+    update(explanation: params[:explanation]) if params[:explanation]
+    file = base64_to_img(params[:icon])
+    icon.attach(io: file, filename: SecureRandom.uuid) if params[:icon]
+    file.unlink
+    true
+  end
+
   def to_response_data
     {
       uuid: id,
@@ -71,6 +81,15 @@ class User < ApplicationRecord
   end
 
   private
+
+  def base64_to_img(base64_encoded_image)
+    image = Base64.decode64(base64_encoded_image)
+
+    file = Tempfile.open('tmp_icon', 'storage')
+    file.write image.force_encoding('UTF-8')
+    file.rewind
+    file
+  end
 
   def self.search_with_keywords(keywords, index = 0)
     keyword = keywords[index]
