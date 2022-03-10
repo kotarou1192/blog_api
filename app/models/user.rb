@@ -1,6 +1,8 @@
 class User < ApplicationRecord
   attr_accessor :password
 
+  EXP_CHAR_NUMBERS = 255
+
   before_save :downcase_email
   before_create :generate_uuid, :create_password_digest
 
@@ -11,6 +13,8 @@ class User < ApplicationRecord
                     format: { with: VALID_EMAIL_REGEX },
                     uniqueness: true
   validates :password, presence: true, length: { minimum: 6 }, on: :create
+  validates :explanation, length: { maximum: EXP_CHAR_NUMBERS }, allow_nil: true
+
   has_many :login_sessions
   has_many :posts
 

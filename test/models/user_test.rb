@@ -31,4 +31,22 @@ class UserTest < ActiveSupport::TestCase
   test 'password_digest should be match digest' do
     assert @user.password_digest == User.digest(@user.password)
   end
+
+  test 'exp should be updated' do
+    assert @user.update(explanation: 'hogefuga')
+  end
+
+  test 'exp can be blank or nil' do
+    @user.update(explanation: 'aaa')
+    assert @user.update(explanation: nil)
+    assert @user.update(explanation: '')
+  end
+
+  test 'exp should be less than 255' do
+    assert_not @user.update(explanation: 'a' * 256)
+  end
+
+  test 'icon can be updated' do
+    assert @user.update(icon: 'something base 64 encoded')
+  end
 end
