@@ -61,6 +61,15 @@ class User < ApplicationRecord
     end
   end
 
+  def to_response_data
+    {
+      uuid: id,
+      name: name,
+      explanation: explanation,
+      icon: icon
+    }
+  end
+
   private
 
   def self.search_with_keywords(keywords, index = 0)
