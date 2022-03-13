@@ -22,7 +22,9 @@ class UsersController < ApplicationController
     user = User.find_by(name: user_name)
     return render json: { error: { message: ['not found'] } }, status: :not_found unless user
 
-    render json: user.to_response_data.merge({ is_my_page: @user ? user.id == @user.id : false })
+    render json: user.to_response_data.merge({ is_my_page: @user ? user.id == @user.id : false }).reject { |k, _v|
+                   k == 'record'
+                 }
   end
 
   def update
