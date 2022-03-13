@@ -69,12 +69,14 @@ class User < ApplicationRecord
   def update_with_icon(params)
     transaction do
       update!(explanation: params[:explanation]) if params[:explanation]
-      file = write_tmp_file params[:icon] if params[:icon]
-      raise ArgumentError, 'icon is invalid' if params[:icon] && !icon.attach(io: file, filename: SecureRandom.uuid)
+
+      if params[:icon]
+        io_file = params[:icon].to_io
+        raise ArgumentError, 'icon is invalid' unless icon.attach(io: io_file, filename: "icon_#{SecureRandom.uuid}")
+      end
+
     rescue StandardError
       return false
-    ensure
-      file.unlink if params[:icon]
     end
     true
   end
@@ -84,18 +86,11 @@ class User < ApplicationRecord
       uuid: id,
       name: name,
       explanation: explanation,
-      icon: icon
+      icon: icon.attached? ? icon.key : ''
     }
   end
 
   private
-
-  def write_tmp_file(img)
-    file = Tempfile.open('tmp_icon', 'storage')
-    file.write img.force_encoding('UTF-8')
-    file.rewind
-    file
-  end
 
   def self.search_with_keywords(keywords, index = 0)
     keyword = keywords[index]

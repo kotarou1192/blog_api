@@ -53,7 +53,7 @@ class UserControllerTest < ActionDispatch::IntegrationTest
     new_name = 'new-name'
     new_exp = 'this is my account.'
     file = File.read('./img.png')
-    put "/users/#{@user.name}", params: { value: { name: new_name, explanation: new_exp, icon: file } },
+    put "/users/#{@user.name}", params: { name: new_name, explanation: new_exp, icon: file },
                                 headers: { Authorization: "Bearer #{@token}" }
     updated_user = User.find_by(name: @user.name)
     assert updated_user.explanation == new_exp
@@ -63,7 +63,7 @@ class UserControllerTest < ActionDispatch::IntegrationTest
     new_name = 'new-name'
     new_exp = 'this is my account.'
     file = File.read('./large_img.jpg')
-    put "/users/#{@user.name}", params: { value: { name: new_name, explanation: new_exp, icon: file } },
+    put "/users/#{@user.name}", params: { name: new_name, explanation: new_exp, icon: file },
                                 headers: { Authorization: "Bearer #{@token}" }
     assert @response.status == 400
   end

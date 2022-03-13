@@ -30,7 +30,7 @@ class UsersController < ApplicationController
 
     return render json: { massage: 'updated your account' } if @user.update_with_icon(user_params)
 
-    render status: 400, json: { messages: '@user.errors.messages' }
+    render status: 400, json: { messages: @user.errors.messages }
   end
 
   def _delete
@@ -44,7 +44,7 @@ class UsersController < ApplicationController
   private
 
   def user_params
-    params.require(:value).permit(:explanation, :icon)
+    params.permit(:explanation, :icon)
   end
 
   def user_creation_params
