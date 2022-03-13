@@ -71,11 +71,12 @@ class User < ApplicationRecord
       update!(explanation: params[:explanation]) if params[:explanation]
 
       if params[:icon]
-        io_file = params[:icon].to_io
-        raise ArgumentError, 'icon is invalid' unless icon.attach(io: io_file, filename: "icon_#{SecureRandom.uuid}")
+        img = to_blob params[:icon]
+        raise ArgumentError, 'icon is invalid' unless icon.attach(img)
       end
 
-    rescue StandardError
+    rescue StandardError => e
+      logger.warn 'user.rb:update_with_icon in rescue' << e.message
       return false
     end
     true
@@ -91,6 +92,28 @@ class User < ApplicationRecord
   end
 
   private
+
+  def to_blob(file)
+    if Rails.configuration.active_storage.service == :amazon
+      p ext_from_content_type(file)
+      key = "icons/#{SecureRandom.uuid}.#{ext_from_content_type(file)}"
+      blob = ActiveStorage::Blob.new(key: key,
+                                     filename: file.original_filename, content_type: file.content_type)
+      blob.upload file.to_io
+
+      blob
+    else
+      file
+    end
+  end
+
+  def ext_from_content_type(file)
+    type = file.content_type
+    result = type.match(%r{/.+$})
+    base = result.nil? ? '' : result[0]
+    base[%r{/}] = ''
+    base
+  end
 
   def self.search_with_keywords(keywords, index = 0)
     keyword = keywords[index]
