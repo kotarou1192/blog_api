@@ -5,14 +5,14 @@ class SearchPostsControllerTest < ActionDispatch::IntegrationTest
   #   assert true
   # end
   test 'should be found' do
-    name = 'test_user'
+    name = 'test-user'
     get '/search/posts?keywords=one'
     res = JSON.parse @response.body
     assert res.any? { |post| post['user_name'] == name }
   end
 
   test 'length should be 55' do
-    user = User.find_by(name: 'test_user')
+    user = User.find_by(name: 'test-user')
     100.times.each do |i|
       user.posts.new(title: "test-#{i}", body: "body-#{i}").save
     end
@@ -23,7 +23,7 @@ class SearchPostsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'length should be 100 + 2 - 55 in page 2' do
-    user = User.find_by(name: 'test_user')
+    user = User.find_by(name: 'test-user')
     100.times.each do |i|
       user.posts.new(title: "test-#{i}", body: "body-#{i}").save
     end
@@ -34,7 +34,7 @@ class SearchPostsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'length should be 0' do
-    user = User.find_by(name: 'test_user')
+    user = User.find_by(name: 'test-user')
     100.times.each do |i|
       user.posts.new(title: "test-#{i}", body: "body-#{i}").save
     end
@@ -48,7 +48,7 @@ class SearchPostsControllerTest < ActionDispatch::IntegrationTest
   # new / old / matched
 
   test 'first result id should be 1' do
-    user = User.find_by(name: 'test_user')
+    user = User.find_by(name: 'test-user')
     100.times.each do |i|
       user.posts.new(title: "test-#{i}", body: "body-#{i}").save
     end
@@ -59,7 +59,7 @@ class SearchPostsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'first result id should be latest' do
-    user = User.find_by(name: 'test_user')
+    user = User.find_by(name: 'test-user')
     100.times.each.with_index do |i, index|
       user.posts.new(title: "test-#{i}", body: "body-#{i}", id: index + 3).save
       @last_index = index + 3
@@ -71,7 +71,7 @@ class SearchPostsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'first result id should be oldest' do
-    user = User.find_by(name: 'test_user')
+    user = User.find_by(name: 'test-user')
     100.times.each.with_index do |i, index|
       user.posts.new(title: "test-#{i}", body: "body-#{i}", id: index + 3).save
     end

@@ -1,5 +1,10 @@
 class User < ApplicationRecord
+  # https://railsguides.jp/active_storage_overview.html
+  has_one_attached :icon
   attr_accessor :password
+
+  EXP_CHAR_NUMBERS = 255
+  MAX_ICON_SIZE = 2
 
   before_save :downcase_email
   before_create :generate_uuid, :create_password_digest
@@ -11,6 +16,10 @@ class User < ApplicationRecord
                     format: { with: VALID_EMAIL_REGEX },
                     uniqueness: true
   validates :password, presence: true, length: { minimum: 6 }, on: :create
+  validates :explanation, length: { maximum: EXP_CHAR_NUMBERS }, allow_nil: true
+  validates :icon, attached_file_size: { maximum: MAX_ICON_SIZE.megabytes },
+                   attached_file_type: { types: %w[image/png image/jpeg image/jpg image/gif] }
+
   has_many :login_sessions
   has_many :posts
 
@@ -57,7 +66,36 @@ class User < ApplicationRecord
     end
   end
 
+  def update_with_icon(params)
+    transaction do
+      update!(explanation: params[:explanation]) if params[:explanation]
+      file = write_tmp_file params[:icon] if params[:icon]
+      raise ArgumentError, 'icon is invalid' if params[:icon] && !icon.attach(io: file, filename: SecureRandom.uuid)
+    rescue StandardError
+      return false
+    ensure
+      file.unlink if params[:icon]
+    end
+    true
+  end
+
+  def to_response_data
+    {
+      uuid: id,
+      name: name,
+      explanation: explanation,
+      icon: icon
+    }
+  end
+
   private
+
+  def write_tmp_file(img)
+    file = Tempfile.open('tmp_icon', 'storage')
+    file.write img.force_encoding('UTF-8')
+    file.rewind
+    file
+  end
 
   def self.search_with_keywords(keywords, index = 0)
     keyword = keywords[index]

@@ -7,14 +7,14 @@
 one: {
       id: '73399adc-57ee-40c2-8d07-26215e93fbd7',
       email: 'test@example.com',
-      name: 'test_user',
+      name: 'test-user',
       password_digest: <%=User.digest('password') %>,
 }
 # column: value
 #
 two: {
       email: 'test2@example.com',
-      name: 'test_user_2',
+      name: 'test-user-2',
       password_digest: <%=User.digest('password') %>,
 }
 # column: value

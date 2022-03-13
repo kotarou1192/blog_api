@@ -42,8 +42,16 @@ Rails.application.configure do
   # Highlight code that triggered database queries in logs.
   config.active_record.verbose_query_logs = true
 
-  config.hosts << "www.example.com"
-
+  config.hosts << 'www.example.com'
+  config.middleware.insert_before 0, Rack::Cors do
+    allow do
+      # TODO: origin
+      origins ['localhost:8080']
+      resource '*',
+               headers: :any,
+               methods: %i[get post put delete options head]
+    end
+  end
 
   # Raises error for missing translations.
   # config.action_view.raise_on_missing_translations = true
@@ -51,4 +59,6 @@ Rails.application.configure do
   # Use an evented file watcher to asynchronously detect changes in source code,
   # routes, locales, etc. This feature depends on the listen gem.
   config.file_watcher = ActiveSupport::EventedFileUpdateChecker
+
+  config.active_storage.service = :amazon
 end

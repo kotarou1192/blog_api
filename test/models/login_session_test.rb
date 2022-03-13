@@ -5,7 +5,7 @@ class LoginSessionTest < ActiveSupport::TestCase
   #   assert true
   # end
   def setup
-    @user = User.find_by(name: 'test_user')
+    @user = User.find_by(name: 'test-user')
   end
 
   test 'should be valid' do

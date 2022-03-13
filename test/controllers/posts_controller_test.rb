@@ -6,8 +6,8 @@ class PostsControllerTest < ActionDispatch::IntegrationTest
   # end
   def setup
     @jwt = JWT::Provider.new(private_key: 'secret'.freeze)
-    @user = User.find_by(name: 'test_user')
-    @other_user = User.find_by(name: 'test_user_2')
+    @user = User.find_by(name: 'test-user')
+    @other_user = User.find_by(name: 'test-user-2')
     @post = Post.find_by(title: 'title_one')
   end
 

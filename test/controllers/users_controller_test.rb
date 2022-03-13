@@ -9,7 +9,12 @@ class UserControllerTest < ActionDispatch::IntegrationTest
     valid_password = 'password'
     post '/auth', params: { value: { email: valid_email, password: valid_password } }
     @token = (JSON.parse @response.body)['token']
-    @user = User.find_by(name: 'test_user')
+    @user = User.find_by(name: 'test-user')
+  end
+
+  def after_teardown
+    super
+    FileUtils.rm_rf(ActiveStorage::Blob.service.root)
   end
 
   test 'should be valid' do
@@ -27,20 +32,39 @@ class UserControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'should be mine' do
-    get '/users/test_user', headers: { Authorization: "Bearer #{@token}" }
+    get "/users/#{@user.name}", headers: { Authorization: "Bearer #{@token}" }
     res = JSON.parse @response.body
     assert res['is_my_page'] == true
   end
 
   test 'should not be mine' do
-    get '/users/test_user'
+    get "/users/#{@user.name}"
     res = JSON.parse @response.body
     assert_not res['is_my_page']
   end
 
   test 'should not be mine with token' do
-    get '/users/test_user_2', headers: { Authorization: "bearer #{@token}" }
+    get '/users/test-user-2', headers: { Authorization: "Bearer #{@token}" }
     res = JSON.parse @response.body
     assert_not res['is_my_page']
+  end
+
+  test 'user should be updated' do
+    new_name = 'new-name'
+    new_exp = 'this is my account.'
+    file = File.read('./img.png')
+    put "/users/#{@user.name}", params: { value: { name: new_name, explanation: new_exp, icon: file } },
+                                headers: { Authorization: "Bearer #{@token}" }
+    updated_user = User.find_by(name: @user.name)
+    assert updated_user.explanation == new_exp
+  end
+
+  test 'too large image should be rejected' do
+    new_name = 'new-name'
+    new_exp = 'this is my account.'
+    file = File.read('./large_img.jpg')
+    put "/users/#{@user.name}", params: { value: { name: new_name, explanation: new_exp, icon: file } },
+                                headers: { Authorization: "Bearer #{@token}" }
+    assert @response.status == 400
   end
 end
