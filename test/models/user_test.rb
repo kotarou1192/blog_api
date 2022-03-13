@@ -50,4 +50,9 @@ class UserTest < ActiveSupport::TestCase
     file = File.open('img.png', 'r')
     assert @user.icon.attach(io: file, filename: 'img.png')
   end
+
+  test 'too large icon can\'t be updated' do
+    file = File.open('large_img.jpg', 'r')
+    assert_not @user.icon.attach(io: file, filename: 'large_img.jpg')
+  end
 end

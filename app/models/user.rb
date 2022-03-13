@@ -4,6 +4,7 @@ class User < ApplicationRecord
   attr_accessor :password
 
   EXP_CHAR_NUMBERS = 255
+  MAX_ICON_SIZE = 2
 
   before_save :downcase_email
   before_create :generate_uuid, :create_password_digest
@@ -16,6 +17,8 @@ class User < ApplicationRecord
                     uniqueness: true
   validates :password, presence: true, length: { minimum: 6 }, on: :create
   validates :explanation, length: { maximum: EXP_CHAR_NUMBERS }, allow_nil: true
+  validates :icon, attached_file_size: { maximum: MAX_ICON_SIZE.megabytes },
+                   attached_file_type: { types: %w[image/png image/jpeg image/jpg image/gif] }
 
   has_many :login_sessions
   has_many :posts
@@ -63,11 +66,16 @@ class User < ApplicationRecord
     end
   end
 
-  def update_with_image(params)
-    update(explanation: params[:explanation]) if params[:explanation]
-    file = base64_to_img(params[:icon])
-    icon.attach(io: file, filename: SecureRandom.uuid) if params[:icon]
-    file.unlink
+  def update_with_icon(params)
+    transaction do
+      update!(explanation: params[:explanation]) if params[:explanation]
+      file = write_tmp_file params[:icon] if params[:icon]
+      raise ArgumentError, 'icon is invalid' if params[:icon] && !icon.attach(io: file, filename: SecureRandom.uuid)
+    rescue StandardError
+      return false
+    ensure
+      file.unlink if params[:icon]
+    end
     true
   end
 
@@ -82,11 +90,9 @@ class User < ApplicationRecord
 
   private
 
-  def base64_to_img(base64_encoded_image)
-    image = Base64.decode64(base64_encoded_image)
-
+  def write_tmp_file(img)
     file = Tempfile.open('tmp_icon', 'storage')
-    file.write image.force_encoding('UTF-8')
+    file.write img.force_encoding('UTF-8')
     file.rewind
     file
   end

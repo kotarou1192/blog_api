@@ -28,7 +28,7 @@ class UsersController < ApplicationController
   def update
     return authenticate_failed unless authenticated?
 
-    return render json: { massage: 'updated your account' } if @user.update_with_image(user_params)
+    return render json: { massage: 'updated your account' } if @user.update_with_icon(user_params)
 
     render status: 400, json: { messages: '@user.errors.messages' }
   end

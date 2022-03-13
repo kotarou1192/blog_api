@@ -5,7 +5,7 @@ class SearchUsersControllerTest < ActionDispatch::IntegrationTest
   #   assert true
   # end
   test 'should be found' do
-    name = 'test_user'
+    name = 'test-user'
     get "/search/users?keywords=#{name}"
     res = JSON.parse @response.body
     assert res.any? { |user| user['name'] == name }
