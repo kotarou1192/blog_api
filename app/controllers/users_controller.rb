@@ -33,7 +33,7 @@ class UsersController < ApplicationController
     render status: 400, json: { messages: '@user.errors.messages' }
   end
 
-  def delete
+  def _delete
     return authenticate_failed unless authenticated?
 
     return render json: { massage: 'updated your account' } if @user.destroy
