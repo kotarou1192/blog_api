@@ -27,6 +27,7 @@ class SearchPostsController < ApplicationController
     {
       user_name: post.user_name,
       id: post.id,
+      user_avatar: post.icon_key,
       title: post.title,
       body: post.body.slice(0, MAX_BODY_CHARS),
       created_at: post.created_at.to_i
