@@ -6,6 +6,7 @@ class Post < ApplicationRecord
   MAX_BODY_CHARS = 100
 
   belongs_to :user
+  has_many :post_categories, dependent: :destroy
 
   before_save :set_default_title
   validates :title, length: { maximum: TITLE_MAX_CHARS }
@@ -23,6 +24,19 @@ class Post < ApplicationRecord
         .order(ORDER_TYPES_MAP[order])
         .limit(max_content)
         .offset(max_content * (page - 1)).includes(user: { icon_attachment: :blob })
+  end
+
+  def add_category(sub_category_ids:)
+    transaction do
+      sub_category_ids.each do |id|
+        sub_cat = SubCategory.find(id)
+        post_categories.create!(sub_category_id: sub_cat.id)
+      end
+      return true
+    rescue StandardError => e
+      logger.warn e
+      return false
+    end
   end
 
   def to_response_data

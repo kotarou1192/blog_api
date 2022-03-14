@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_03_14_190635) do
+ActiveRecord::Schema.define(version: 2022_03_14_200915) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -37,7 +37,6 @@ ActiveRecord::Schema.define(version: 2022_03_14_190635) do
 
   create_table "categories", force: :cascade do |t|
     t.string "name"
-    t.string "type"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
   end
@@ -51,12 +50,12 @@ ActiveRecord::Schema.define(version: 2022_03_14_190635) do
   end
 
   create_table "post_categories", force: :cascade do |t|
-    t.bigint "category_id", null: false
+    t.bigint "sub_category_id", null: false
     t.bigint "post_id"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
-    t.index ["category_id"], name: "index_post_categories_on_category_id"
     t.index ["post_id"], name: "index_post_categories_on_post_id"
+    t.index ["sub_category_id"], name: "index_post_categories_on_sub_category_id"
   end
 
   create_table "posts", force: :cascade do |t|
@@ -68,6 +67,14 @@ ActiveRecord::Schema.define(version: 2022_03_14_190635) do
     t.index ["title", "body"], name: "index_posts_on_title_and_body"
     t.index ["title"], name: "index_posts_on_title"
     t.index ["user_id"], name: "index_posts_on_user_id"
+  end
+
+  create_table "sub_categories", force: :cascade do |t|
+    t.string "name"
+    t.bigint "category_id"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["category_id"], name: "index_sub_categories_on_category_id"
   end
 
   create_table "user_creation_sessions", force: :cascade do |t|
