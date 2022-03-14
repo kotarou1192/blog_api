@@ -3,6 +3,7 @@ class Post < ApplicationRecord
   BODY_MAX_CHARS = 6000
   DEFAULT_TITLE = 'NoTitle'.freeze
   RESULT = 'result'.freeze
+  MAX_BODY_CHARS = 100
 
   belongs_to :user
 
@@ -12,18 +13,27 @@ class Post < ApplicationRecord
 
   ORDER_TYPES = %w[new old matched].freeze
   ORDER_TYPES_MAP = {
-    'new'.freeze => "ORDER BY #{RESULT}.created_at desc",
-    'old'.freeze => "ORDER BY #{RESULT}.created_at asc",
-    'matched'.freeze => 'ORDER BY count(*) desc'
-  }
+    'new'.freeze => 'created_at desc',
+    'old'.freeze => 'created_at asc',
+    'matched'.freeze => ''
+  }.freeze
   def self.search(keywords, page, max_content = 50, order: 'matched')
     order = ORDER_TYPES_MAP['matched'] unless ORDER_TYPES.any? order
-    Post.find_by_sql(['SELECT id, out.user_name, title, body, icon_key, created_at FROM (' <<
-      Post.arel_table
-          .project("#{RESULT}.id", "#{RESULT}.title", "#{RESULT}.body", "#{RESULT}.created_at, #{RESULT}.user_name, #{RESULT}.icon_key")
-          .from(search_with_keywords(keywords).as(RESULT))
-          .group("#{RESULT}.id", "#{RESULT}.title", "#{RESULT}.body", "#{RESULT}.created_at, #{RESULT}.user_name, #{RESULT}.icon_key")
-          .to_sql << " #{ORDER_TYPES_MAP[order]} ) AS out LIMIT ? OFFSET ?", max_content, max_content * (page - 1)])
+    Post.search_with_keywords(keywords)
+        .order(ORDER_TYPES_MAP[order])
+        .limit(max_content)
+        .offset(max_content * (page - 1)).includes(user: { icon_attachment: :blob })
+  end
+
+  def to_response_data
+    {
+      user_name: user.name,
+      id: id,
+      user_avatar: user.icon.attached? ? user.icon.key : '',
+      title: title,
+      body: body.slice(0, MAX_BODY_CHARS),
+      created_at: created_at.to_i
+    }
   end
 
   private
@@ -34,15 +44,10 @@ class Post < ApplicationRecord
 
   def self.search_with_keywords(keywords, index = 0)
     keyword = keywords[index]
-    uposts = Arel::Table.new :uposts
-    post = Post.arel_table
-    posts = post.project('uposts.u_name as user_name, uposts.id, uposts.title, uposts.icon_key, uposts.body, uposts.created_at')
-                .from('((select id as uuid, name as u_name, icon_key from users) as author INNER JOIN posts ON author.uuid = posts.user_id) as uposts')
-                .where(uposts[:title].matches(keyword)
-                    .or(uposts[:body].matches(keyword)))
+    posts = Post.where('title LIKE ?', keyword).or(Post.where('body LIKE ?', keyword))
 
     return posts if keywords.size - 1 <= index
 
-    Arel::Nodes::UnionAll.new(posts, search_with_keywords(keywords, index + 1))
+    posts.or(search_with_keywords(keywords, index + 1))
   end
 end

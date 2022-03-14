@@ -81,4 +81,18 @@ class SearchPostsControllerTest < ActionDispatch::IntegrationTest
     res = JSON.parse @response.body
     assert res[0]['id'] == post.id
   end
+
+  test 'author icon should be exist' do
+    user = User.find_by(name: 'test-user')
+    f = File.open('./img.png', 'r')
+    user.icon.attach(io: f, filename: 'img.png')
+    f.close
+    100.times.each.with_index do |i, index|
+      user.posts.new(title: "test-#{i}", body: "body-#{i}", id: index + 3).save
+    end
+    keyword = '_'
+    get "/search/posts?keywords=#{keyword}&max_contents=55&page=1&order_type=old"
+    res = JSON.parse @response.body
+    assert res[0]['user_avatar']
+  end
 end
