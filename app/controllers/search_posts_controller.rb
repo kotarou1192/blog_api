@@ -1,7 +1,6 @@
 class SearchPostsController < ApplicationController
   include Authenticate
   DEFAULT_MAX_CONTENTS = 50
-  MAX_BODY_CHARS = 100
 
   def index
     authenticated?
@@ -9,8 +8,8 @@ class SearchPostsController < ApplicationController
     page = search_params[:page].blank? ? 1 : search_params[:page].to_i
     max_contents = search_params[:max_contents].blank? ? DEFAULT_MAX_CONTENTS : search_params[:max_contents].to_i
 
-    results = Post.search(search_keywords, page, max_contents, order: order_type).map { |post| to_hash(post) }
-    render json: results
+    results = Post.search(search_keywords, page, max_contents, order: order_type)
+    render json: results.map(&:to_response_data)
   end
 
   private
@@ -21,17 +20,6 @@ class SearchPostsController < ApplicationController
     search_params[:keywords].split(/[[:blank:]]/).map do |keyword|
       "%#{keyword}%"
     end
-  end
-
-  def to_hash(post)
-    {
-      user_name: post.user_name,
-      id: post.id,
-      user_avatar: post.icon_key,
-      title: post.title,
-      body: post.body.slice(0, MAX_BODY_CHARS),
-      created_at: post.created_at.to_i
-    }
   end
 
   ORDER_TYPES = %w[new old matched].freeze
