@@ -31,9 +31,9 @@ class User < ApplicationRecord
 
   def self.search(keywords, page, max_content = 50)
     User.find_by_sql(User.arel_table
-                         .project('result.name')
+                         .project('result.name, result.icon_key, result.explanation, result.id')
                          .from(search_with_keywords(keywords).as('result'))
-                         .group('result.name')
+                         .group('result.name, result.icon_key, result.explanation, result.id')
                          .order('count(*) desc') # ここに評価値みたいなのを入れるといいかもしれない
                          .take(max_content)
                          .skip(max_content * (page - 1))
@@ -73,6 +73,8 @@ class User < ApplicationRecord
       if params[:icon]
         img = to_blob params[:icon]
         raise ArgumentError, 'icon is invalid' unless icon.attach(img)
+
+        update!(icon_key: icon.key)
       end
 
     rescue StandardError => e
@@ -86,8 +88,8 @@ class User < ApplicationRecord
     {
       uuid: id,
       name: name,
-      explanation: explanation,
-      icon: icon.attached? ? icon.key : ''
+      explanation: explanation || '',
+      icon: icon.attached? ? icon_key : ''
     }
   end
 

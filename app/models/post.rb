@@ -18,11 +18,11 @@ class Post < ApplicationRecord
   }
   def self.search(keywords, page, max_content = 50, order: 'matched')
     order = ORDER_TYPES_MAP['matched'] unless ORDER_TYPES.any? order
-    Post.find_by_sql(['SELECT id, out.user_name, title, body, created_at FROM (' <<
+    Post.find_by_sql(['SELECT id, out.user_name, title, body, icon_key, created_at FROM (' <<
       Post.arel_table
-          .project("#{RESULT}.id", "#{RESULT}.title", "#{RESULT}.body", "#{RESULT}.created_at, #{RESULT}.user_name")
+          .project("#{RESULT}.id", "#{RESULT}.title", "#{RESULT}.body", "#{RESULT}.created_at, #{RESULT}.user_name, #{RESULT}.icon_key")
           .from(search_with_keywords(keywords).as(RESULT))
-          .group("#{RESULT}.id", "#{RESULT}.title", "#{RESULT}.body", "#{RESULT}.created_at, #{RESULT}.user_name")
+          .group("#{RESULT}.id", "#{RESULT}.title", "#{RESULT}.body", "#{RESULT}.created_at, #{RESULT}.user_name, #{RESULT}.icon_key")
           .to_sql << " #{ORDER_TYPES_MAP[order]} ) AS out LIMIT ? OFFSET ?", max_content, max_content * (page - 1)])
   end
 
@@ -36,8 +36,8 @@ class Post < ApplicationRecord
     keyword = keywords[index]
     uposts = Arel::Table.new :uposts
     post = Post.arel_table
-    posts = post.project('uposts.u_name as user_name, uposts.id, uposts.title, uposts.body, uposts.created_at')
-                .from('((select id as uuid, name as u_name from users) as author INNER JOIN posts ON author.uuid = posts.user_id) as uposts')
+    posts = post.project('uposts.u_name as user_name, uposts.id, uposts.title, uposts.icon_key, uposts.body, uposts.created_at')
+                .from('((select id as uuid, name as u_name, icon_key from users) as author INNER JOIN posts ON author.uuid = posts.user_id) as uposts')
                 .where(uposts[:title].matches(keyword)
                     .or(uposts[:body].matches(keyword)))
 

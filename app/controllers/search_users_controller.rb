@@ -8,7 +8,7 @@ class SearchUsersController < ApplicationController
     page = search_params[:page].blank? ? 1 : search_params[:page].to_i
     max_contents = search_params[:max_contents].blank? ? DEFAULT_MAX_CONTENTS : search_params[:max_contents].to_i
 
-    results = User.search(search_keywords, page, max_contents).map { |user| to_hash(user) }
+    results = User.search(search_keywords, page, max_contents).map { |user| user.to_response_data }
     render json: results
   end
 
