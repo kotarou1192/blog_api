@@ -30,14 +30,9 @@ class User < ApplicationRecord
   end
 
   def self.search(keywords, page, max_content = 50)
-    User.find_by_sql(User.arel_table
-                         .project('result.name, result.icon_key, result.explanation, result.id')
-                         .from(search_with_keywords(keywords).as('result'))
-                         .group('result.name, result.icon_key, result.explanation, result.id')
-                         .order('count(*) desc') # ここに評価値みたいなのを入れるといいかもしれない
-                         .take(max_content)
-                         .skip(max_content * (page - 1))
-                         .to_sql)
+    User.with_attached_icon.search_with_keywords(keywords)
+        .limit(max_content)
+        .offset(max_content * (page - 1))
   end
 
   # ハッシュ化する
@@ -89,7 +84,7 @@ class User < ApplicationRecord
       uuid: id,
       name: name,
       explanation: explanation || '',
-      icon: icon.attached? ? icon_key : ''
+      icon: icon.attached? ? icon.key : ''
     }
   end
 
@@ -119,13 +114,11 @@ class User < ApplicationRecord
 
   def self.search_with_keywords(keywords, index = 0)
     keyword = keywords[index]
-    user = User.arel_table
-    users = user.project('*').from('users')
-                .where(user[:name].matches(keyword))
+    users = User.where('name LIKE ?', keyword).or(User.where('explanation LIKE ?', keyword))
 
     return users if keywords.size - 1 <= index
 
-    Arel::Nodes::UnionAll.new(users, search_with_keywords(keywords, index + 1))
+    users.or(search_with_keywords(keywords, index + 1))
   end
 
   # メールアドレスをすべて小文字にする
