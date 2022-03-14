@@ -15,7 +15,7 @@ class SearchUsersController < ApplicationController
   private
 
   def search_keywords
-    return [] if search_params[:keywords].blank?
+    return ['%_%'] if search_params[:keywords].blank?
 
     search_params[:keywords].split(/[[:blank:]]/).map do |keyword|
       "%#{keyword}%"
