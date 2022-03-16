@@ -1,8 +1,7 @@
 class PostCategory < ApplicationRecord
   belongs_to :post
-  has_and_belongs_to_many :sub_categories
-  validate :less_than_limit?
-  validate :all_uniq?
+  belongs_to :sub_category
+  validate :less_than_limit_and_uniq?
   MAXIMUM_CATEGORY_NUMS = 10
 
   def self.all_categories
@@ -11,22 +10,27 @@ class PostCategory < ApplicationRecord
 
   private
 
+  def less_than_limit_and_uniq?
+    less_than_limit? && all_uniq?
+  end
+
   def less_than_limit?
-    if post.post_categories && post.post_categories.size > MAXIMUM_CATEGORY_NUMS
-      errors.add(:post_categories, 'too many categories')
+    if post.post_categories.size > MAXIMUM_CATEGORY_NUMS
+      errors.add(:post_categories, "is too much. less than #{MAXIMUM_CATEGORY_NUMS}")
+      return false
     end
+    true
   end
 
   def all_uniq?
-    if post.post_categories
-      mapper = {}
-      return unless post.post_categories.any? do |category|
-        next true if mapper[category.sub_category_id]
+    return true if post.post_categories.empty?
 
-        mapper[category.sub_category_id] ||= true
-      end
+    mapper = {}
+    return true if post.post_categories.all? do |category|
+                     mapper[category.sub_category_id].nil? && (mapper[category.sub_category_id] = true)
+                   end
 
-      errors.add(:post_categories, 'must be unique')
-    end
+    errors.add(:post_categories, 'must be unique')
+    false
   end
 end

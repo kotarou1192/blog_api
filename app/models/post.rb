@@ -26,17 +26,18 @@ class Post < ApplicationRecord
         .offset(max_content * (page - 1)).includes(user: { icon_attachment: :blob })
   end
 
-  def add_category(sub_category_ids:)
+  def add_categories(sub_category_ids:)
     transaction do
-      sub_category_ids.each do |id|
-        sub_cat = SubCategory.find(id)
-        post_categories.create!(sub_category_id: sub_cat.id)
-      end
-      return true
-    rescue StandardError => e
+      sub_category_ids.map do |id|
+        sub_cat = SubCategory.find_by(id: id)
+        post_categories.new(sub_category_id: sub_cat.id)
+      end.each(&:save!)
+    rescue ActiveRecord::RecordInvalid => e
+      p e
       logger.warn e
       return false
     end
+    true
   end
 
   def to_response_data

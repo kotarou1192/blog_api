@@ -7,9 +7,9 @@ class PostCategoryTest < ActiveSupport::TestCase
   def setup
     @user = User.find_by(name: 'test-user')
     @post = @user.posts.create(title: 'this is it', body: 'this is that')
-    foods_category = %w[グルメ総合 食べ歩き スイーツ 料理 お酒 外食 レシピ]
-    cat = Category.create(name: 'グルメ')
-    foods_category.each do |name|
+    test_category = %w[a b c d e f g h i j k l m n o p q r s t u]
+    cat = Category.create(name: 'test cat')
+    test_category.each do |name|
       cat.sub_categories.create(name: name)
     end
     @categories = PostCategory.all_categories.map(&:to_data)
@@ -17,17 +17,17 @@ class PostCategoryTest < ActiveSupport::TestCase
 
   test 'should be created' do
     id = @categories[0][:id]
-    assert @post.add_category(sub_category_ids: [id])
+    assert @post.add_categories(sub_category_ids: [id])
   end
 
   test 'should be invalid' do
     id = @categories[0][:id]
-    @post.add_category(sub_category_ids: [id])
-    assert_not @post.add_category(sub_category_ids: [id])
+    @post.add_categories(sub_category_ids: [id])
+    assert_not @post.add_categories(sub_category_ids: [id])
   end
 
   test 'too manu categories should be rejected' do
-    ids = @categories[0..10]
-    assert_not @post.add_category(sub_category_ids: ids)
+    ids = @categories[0..10].map { |cat| cat[:id] }
+    assert_not @post.add_categories(sub_category_ids: ids)
   end
 end

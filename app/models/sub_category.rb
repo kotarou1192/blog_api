@@ -2,7 +2,7 @@ class SubCategory < ApplicationRecord
   NAME_MAX_CHARS = 30
   validates :name, length: { maximum: NAME_MAX_CHARS }, presence: true, uniqueness: true
   belongs_to :category
-  has_and_belongs_to_many :post_categories
+  has_many :post_categories
 
   def to_data
     {
