@@ -42,7 +42,6 @@ class PostsController < ApplicationController
         @post.add_categories!(sub_category_ids: post_params[:additional_category_ids])
       end
     rescue ActiveRecord::RecordInvalid => e
-      p e
       logger.warn e.message
       return render json: { message: 'update failed' }, status: 400
     end

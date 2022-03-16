@@ -18,12 +18,16 @@ class Post < ApplicationRecord
     'old'.freeze => 'created_at asc',
     'matched'.freeze => ''
   }.freeze
-  def self.search(keywords, page, max_content = 50, order: 'matched')
+  CATEGORY_SCOPES = %w[base sub].freeze
+
+  def self.search(keywords, page, max_content = 50, order: 'matched', category: { ids: [], scope: nil })
     order = ORDER_TYPES_MAP['matched'] unless ORDER_TYPES.any? order
-    Post.search_with_keywords(keywords)
-        .order(ORDER_TYPES_MAP[order])
-        .limit(max_content)
-        .offset(max_content * (page - 1)).includes(user: { icon_attachment: :blob })
+    filtered_post = filter_with_category(category[:scope], category[:ids])
+    filtered_post.merge(search_with_keywords(keywords))
+                 .order(ORDER_TYPES_MAP[order])
+                 .limit(max_content)
+                 .offset(max_content * (page - 1))
+                 .includes(post_categories: :sub_category, user: { icon_attachment: :blob })
   end
 
   def add_categories!(sub_category_ids: [])
@@ -55,7 +59,13 @@ class Post < ApplicationRecord
       user_id: user_id,
       user_name: user.name,
       user_avatar: user.icon.attached? ? user.icon.key : '',
-      categories: post_categories.empty? ? [] : post_categories.map { |p_category| p_category.sub_category.to_data },
+      categories: if post_categories.empty?
+                    []
+                  else
+                    post_categories.map do |p_category|
+                      p_category.sub_category.to_data
+                    end
+                  end,
       title: title,
       body: full_body ? body : body.slice(0, MAX_BODY_CHARS),
       created_at: created_at.to_i,
@@ -65,16 +75,34 @@ class Post < ApplicationRecord
 
   private
 
+  def self.filter_with_category(category_scope, ids)
+    return Post unless CATEGORY_SCOPES.any? category_scope
+
+    cat_ids = if category_scope == 'base'
+                bases = Category.where(id: ids)
+                return Post if bases.empty?
+
+                bases.map { |base| base.sub_categories.map(&:id) }.flatten
+              else
+                sub = SubCategory.where(id: ids)
+                return Post if sub.empty?
+
+                sub.where(id: ids).map(&:id)
+              end
+    categorized_post_ids = PostCategory.where(sub_category_id: cat_ids).map(&:post_id).uniq
+    Post.where(id: categorized_post_ids)
+  end
+
   def set_default_title
     self.title = DEFAULT_TITLE if title.blank?
   end
 
-  def self.search_with_keywords(keywords, index = 0)
-    keyword = keywords[index]
+  def self.search_with_keywords(keywords)
+    keyword = keywords.shift
     posts = Post.where('title LIKE ?', keyword).or(Post.where('body LIKE ?', keyword))
 
-    return posts if keywords.size - 1 <= index
+    return posts if keywords.size.zero?
 
-    posts.or(search_with_keywords(keywords, index + 1))
+    posts.or(search_with_keywords(keywords))
   end
 end
