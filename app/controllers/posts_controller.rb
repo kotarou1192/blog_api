@@ -24,7 +24,7 @@ class PostsController < ApplicationController
     return authenticate_failed unless authenticated?
     return authenticate_failed if @user != @target_user
 
-    new_post = @target_user.posts.new(post_params)
+    new_post = @target_user.posts.new(post_create_params)
     new_post.transaction do
       new_post.save!
       if post_params[:additional_category_ids]
@@ -104,5 +104,9 @@ class PostsController < ApplicationController
 
   def post_params
     params.permit(:body, :title, additional_category_ids: [])
+  end
+
+  def post_create_params
+    params.permit(:body, :title)
   end
 end
