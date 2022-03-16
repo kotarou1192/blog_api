@@ -25,9 +25,16 @@ class PostsController < ApplicationController
     return authenticate_failed if @user != @target_user
 
     new_post = @target_user.posts.new(post_params)
-    return render json: { message: 'success' } if new_post.save
-
-    render json: { message: 'creation failed' }, status: 400
+    new_post.transaction do
+      new_post.save!
+      if post_params[:additional_category_ids]
+        new_post.add_categories!(sub_category_ids: post_params[:additional_category_ids])
+      end
+    rescue ActiveRecord::RecordInvalid => e
+      logger.warn e.message
+      return render json: { message: 'creation failed' }, status: 400
+    end
+    render json: { message: 'success' }
   end
 
   def update
