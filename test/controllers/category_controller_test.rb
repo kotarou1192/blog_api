@@ -8,10 +8,10 @@ class CategoryControllerTest < ActionDispatch::IntegrationTest
   def setup
     @user = User.find_by(name: 'test-user')
     @post = @user.posts.create(title: 'this is it', body: 'this is that')
-    @test_category = %w[a b c d e f g h i j k l m n o p q r s t u]
-    cat = Category.create(name: 'test cat')
+    @test_category = %w[a b c d e f g h i j k l m n o p q r s test u]
+    @cat = Category.create(name: 'test cat')
     @test_category.each do |name|
-      cat.sub_categories.create(name: name)
+      @cat.sub_categories.create(name: name)
     end
     @categories = PostCategory.all_categories.map(&:to_data)
   end
@@ -20,5 +20,11 @@ class CategoryControllerTest < ActionDispatch::IntegrationTest
     get '/categories'
     res = JSON.parse @response.body
     assert res['test cat']['sub_categories'].size == @test_category.size
+  end
+
+  test 'should be found' do
+    get '/search/categories?keyword=' << 't'
+    res = JSON.parse @response.body
+    assert res['base'].size == 1 && res['sub'].size == 1
   end
 end
