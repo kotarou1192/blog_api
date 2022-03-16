@@ -70,6 +70,27 @@ class PostsControllerTest < ActionDispatch::IntegrationTest
     assert edited_post.post_categories.size == 5
   end
 
+  test 'should be able to remove category to post' do
+    # create categories
+    test_category = %w[a b c d e f g h i j k l m n o p q r s t u]
+    cat = Category.create(name: 'test cat')
+    test_category.each do |name|
+      cat.sub_categories.create(name: name)
+    end
+    categories = SubCategory.all.map(&:id)
+
+    put "/users/#{@user.name}/posts/#{@post.id}", params: { additional_category_ids: categories.shift(5) },
+                                                  headers: authorize_header
+
+    get "/users/#{@user.name}/posts/#{@post.id}"
+    res = JSON.parse @response.body
+    cache = res['categories'].dup
+    delete "/users/#{@user.name}/posts/#{@post.id}/category/#{cache[0]['tag_id']}", headers: authorize_header
+    get "/users/#{@user.name}/posts/#{@post.id}"
+    res = JSON.parse @response.body
+    assert_not res['categories'].size == cache.size
+  end
+
   test 'should be able to edit and add category to post' do
     # create categories
     test_category = %w[a b c d e f g h i j k l m n o p q r s t u]

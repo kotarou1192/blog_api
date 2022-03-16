@@ -63,7 +63,7 @@ class Post < ApplicationRecord
                     []
                   else
                     post_categories.map do |p_category|
-                      p_category.sub_category.to_data
+                      { tag_id: p_category.id, value: p_category.sub_category.to_data }
                     end
                   end,
       title: title,

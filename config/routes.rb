@@ -5,11 +5,16 @@ Rails.application.routes.draw do
   resources :users, param: :name, only: %i[show] do
     resources :posts, only: %i[index show create destroy update]
   end
+  resources :users, param: :name, only: %i[show] do
+    resources :posts, param: :id, only: %i[show] do
+      delete 'category/:tag_id', to: 'posts#remove_category'
+    end
+  end
   get '/search/users', to: 'search_users#index'
   get '/search/posts', to: 'search_posts#index'
   post '/account/want_to_create', to: 'user_creation#create'
   get '/categories', to: 'category#index'
-  get 'search/categories', to: 'category#search'
+  get '/search/categories', to: 'category#search'
 
   if Rails.env == 'development'
     require 'sidekiq/web'
