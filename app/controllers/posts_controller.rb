@@ -7,9 +7,7 @@ class PostsController < ApplicationController
   def index
     return user_not_found_error unless @target_user
 
-    posts = @target_user.posts.select(:id, :user_id, :created_at, :updated_at, :title).order('created_at DESC').map do |post|
-      post_data post
-    end
+    posts = @target_user.posts.order('created_at DESC').map(&:to_response_data)
 
     render json: posts
   end
@@ -18,7 +16,7 @@ class PostsController < ApplicationController
     return user_not_found_error unless @target_user
     return post_not_found_error unless @post
 
-    render json: post_data(@post, has_body: true)
+    render json: @post.to_response_data(full_body: true)
   end
 
   def create
@@ -38,9 +36,17 @@ class PostsController < ApplicationController
     return authenticate_failed unless authenticated?
     return authenticate_failed if @user != @target_user
 
-    return render json: { message: 'success' } if @post.update(post_params.to_h)
-
-    render json: { message: 'update failed' }, status: 400
+    @post.transaction do
+      @post.update!(post_params.permit(:title, :body).to_h)
+      if post_params[:additional_category_ids]
+        @post.add_categories!(sub_category_ids: post_params[:additional_category_ids])
+      end
+    rescue ActiveRecord::RecordInvalid => e
+      p e
+      logger.warn e.message
+      return render json: { message: 'update failed' }, status: 400
+    end
+    render json: { message: 'success' }
   end
 
   def destroy
@@ -55,16 +61,6 @@ class PostsController < ApplicationController
   end
 
   private
-
-  def post_data(post, has_body: false)
-    {
-      id: post.id,
-      user_id: post.user_id,
-      title: post.title,
-      created_at: post.created_at.to_i,
-      updated_at: post.updated_at.to_i
-    }.merge(has_body ? { body: post.body } : {})
-  end
 
   def post_not_found_error
     render json: { message: "the post id: #{allowed_params[:id]} does not exist." }, status: :not_found
@@ -82,11 +78,12 @@ class PostsController < ApplicationController
     @post = Post.find(allowed_params[:id].to_i)
   end
 
+  # used from error_response and pick_{name}
   def allowed_params
     params.permit(:title, :body, :user_name, :id)
   end
 
   def post_params
-    params.permit(:body, :title)
+    params.permit(:body, :title, additional_category_ids: [])
   end
 end

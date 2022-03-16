@@ -26,7 +26,17 @@ class Post < ApplicationRecord
         .offset(max_content * (page - 1)).includes(user: { icon_attachment: :blob })
   end
 
-  def add_categories(sub_category_ids:)
+  def add_categories!(sub_category_ids: [])
+    transaction do
+      sub_category_ids.map do |id|
+        sub_cat = SubCategory.find_by(id: id)
+        post_categories.new(sub_category_id: sub_cat.id)
+      end.each(&:save!)
+    end
+    true
+  end
+
+  def add_categories(sub_category_ids: [])
     transaction do
       sub_category_ids.map do |id|
         sub_cat = SubCategory.find_by(id: id)
@@ -39,14 +49,17 @@ class Post < ApplicationRecord
     true
   end
 
-  def to_response_data
+  def to_response_data(full_body: false)
     {
-      user_name: user.name,
       id: id,
+      user_id: user_id,
+      user_name: user.name,
       user_avatar: user.icon.attached? ? user.icon.key : '',
+      categories: post_categories.empty? ? [] : post_categories.map { |p_category| p_category.sub_category.to_data },
       title: title,
-      body: body.slice(0, MAX_BODY_CHARS),
-      created_at: created_at.to_i
+      body: full_body ? body : body.slice(0, MAX_BODY_CHARS),
+      created_at: created_at.to_i,
+      updated_at: updated_at.to_i
     }
   end
 
