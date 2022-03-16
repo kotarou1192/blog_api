@@ -8,6 +8,8 @@ Rails.application.routes.draw do
   get '/search/users', to: 'search_users#index'
   get '/search/posts', to: 'search_posts#index'
   post '/account/want_to_create', to: 'user_creation#create'
+  get '/categories', to: 'category#index'
+  get 'search/categories', to: 'category#search'
 
   if Rails.env == 'development'
     require 'sidekiq/web'

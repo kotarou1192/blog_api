@@ -11,6 +11,29 @@ class SearchPostsControllerTest < ActionDispatch::IntegrationTest
     assert res.any? { |post| post['user_name'] == name }
   end
 
+  test 'should be found with category' do
+    user = User.find_by name: 'test-user'
+
+    test_category = %w[a b c d e f g h i j k l m n o p q r s t u]
+    cat = Category.create(name: 'test cat')
+    li = test_category.map do |name|
+      cat.sub_categories.create(name: name)
+    end
+    ids = li.map(&:id)
+
+    10.times.map do |i|
+      po = user.posts.create(title: "title #{i}", body: "body #{i}")
+      po.add_categories(sub_category_ids: ids[0..i])
+    end
+
+    get '/search/posts?keywords=_&category_scope=base&category_ids=' << cat.id.to_s
+    res = JSON.parse @response.body
+    assert res.size == 10
+    get '/search/posts?keywords=_&category_scope=sub&category_ids=' << ids[9].to_s
+    res = JSON.parse @response.body
+    assert res.size == 1
+  end
+
   test 'length should be 55' do
     user = User.find_by(name: 'test-user')
     100.times.each do |i|

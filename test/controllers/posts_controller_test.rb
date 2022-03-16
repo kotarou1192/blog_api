@@ -54,6 +54,40 @@ class PostsControllerTest < ActionDispatch::IntegrationTest
     assert edited_post.title == title && edited_post.body == body
   end
 
+  test 'should be able to add category to post' do
+    # create categories
+    test_category = %w[a b c d e f g h i j k l m n o p q r s t u]
+    cat = Category.create(name: 'test cat')
+    test_category.each do |name|
+      cat.sub_categories.create(name: name)
+    end
+    categories = SubCategory.all.map(&:id)
+
+    put "/users/#{@user.name}/posts/#{@post.id}", params: { additional_category_ids: categories.shift(5) },
+                                                  headers: authorize_header
+
+    edited_post = Post.find(@post.id)
+    assert edited_post.post_categories.size == 5
+  end
+
+  test 'should be able to edit and add category to post' do
+    # create categories
+    test_category = %w[a b c d e f g h i j k l m n o p q r s t u]
+    cat = Category.create(name: 'test cat')
+    test_category.each do |name|
+      cat.sub_categories.create(name: name)
+    end
+    categories = SubCategory.all.map(&:id)
+    title = 'edited_title'
+    body = 'edited_body'
+
+    put "/users/#{@user.name}/posts/#{@post.id}", params: { title: title, body: body, additional_category_ids: categories.shift(5) },
+                                                  headers: authorize_header
+
+    edited_post = Post.find(@post.id)
+    assert edited_post.post_categories.size == 5 && edited_post.title == title && edited_post.body == body
+  end
+
   test 'be not able to edit other person\'s any post' do
     title = 'edited_title'
     body = 'edited_body'
