@@ -33,7 +33,6 @@ class Post < ApplicationRecord
         post_categories.new(sub_category_id: sub_cat.id)
       end.each(&:save!)
     rescue ActiveRecord::RecordInvalid => e
-      p e
       logger.warn e
       return false
     end
