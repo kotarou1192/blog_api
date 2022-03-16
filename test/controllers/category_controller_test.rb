@@ -19,6 +19,6 @@ class CategoryControllerTest < ActionDispatch::IntegrationTest
   test 'should be got' do
     get '/categories'
     res = JSON.parse @response.body
-    assert res['test cat'].size == @test_category.size
+    assert res['test cat']['sub_categories'].size == @test_category.size
   end
 end
