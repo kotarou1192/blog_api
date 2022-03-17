@@ -35,10 +35,12 @@ module TodoTree
     config.load_defaults 6.0
     hosts_list = %w[api.blog-md.net takashiii-hq-api-production blog-md.net
                     local.takashiii-hq.com]
+    hosts_list_allowed_local = %w[api.blog-md.net takashiii-hq-api-production blog-md.net
+                                  local.takashiii-hq.com localhost:8080]
 
     config.active_job.queue_adapter = :sidekiq
 
-    config.hosts.concat hosts_list
+    config.hosts.concat ENV['ALLOW_LOCAL'] == 'yes' ? hosts_list_allowed_local : hosts_list
 
     config.middleware.insert_before 0, Rack::Cors do
       allow do
