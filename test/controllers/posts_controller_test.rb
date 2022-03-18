@@ -78,18 +78,19 @@ class PostsControllerTest < ActionDispatch::IntegrationTest
       cat.sub_categories.create(name: name)
     end
     categories = SubCategory.all.map(&:id)
+    selected = categories.shift(5)
 
-    put "/users/#{@user.name}/posts/#{@post.id}", params: { sub_category_ids: categories.shift(5) },
+    put "/users/#{@user.name}/posts/#{@post.id}", params: { sub_category_ids: selected },
                                                   headers: authorize_header
 
     get "/users/#{@user.name}/posts/#{@post.id}"
     res = JSON.parse @response.body
-    cache = res['categories'].dup
-    put "/users/#{@user.name}/posts/#{@post.id}", params: { title: @post.title, body: @post.body },
+    first_size = res['categories'].size
+    put "/users/#{@user.name}/posts/#{@post.id}", params: { title: @post.title, body: @post.body, sub_category_ids: selected[0..2] },
                                                   headers: authorize_header
     get "/users/#{@user.name}/posts/#{@post.id}"
     res = JSON.parse @response.body
-    assert_not res['categories'].size == cache.size
+    assert_not res['categories'].size == first_size
   end
 
   test 'should be able to edit and add category to post' do

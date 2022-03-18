@@ -34,16 +34,17 @@ class Post < ApplicationRecord
     related_tags = if sub_category_ids.empty?
                      PostCategory.where(post_id: id)
                    else
-                     PostCategory.where(sub_category_id: sub_category_ids, post_id: id)
+                     PostCategory.where(sub_category_id: sub_category_ids.map(&:to_i), post_id: id)
                    end
     related_ids = related_tags.map(&:sub_category_id)
     transaction do
       # 減っているものを消す
       related_tags.filter do |tag|
-        !sub_category_ids.include? tag.sub_category_id
+        sub_category_ids.map(&:to_i).include? tag.sub_category_id
       end.each(&:destroy!)
       # 無いものを足す
       sub_category_ids
+        .map(&:to_i)
         .filter do |id|
         !related_ids.include? id
       end.map do |id|
@@ -58,19 +59,20 @@ class Post < ApplicationRecord
     related_tags = if sub_category_ids.empty?
                      PostCategory.where(post_id: id)
                    else
-                     PostCategory.where(sub_category_id: sub_category_ids, post_id: id)
+                     PostCategory.where(sub_category_id: sub_category_ids.map(&:to_i), post_id: id)
                    end
     related_ids = related_tags.map(&:sub_category_id)
     transaction do
       # 減っているものを消す
       related_tags.filter do |tag|
-        !sub_category_ids.include? tag.sub_category_id
+        sub_category_ids.map(&:to_i).include? tag.sub_category_id
       end.each(&:destroy!)
       # 無いものを足す
       sub_category_ids
+        .map(&:to_i)
         .filter do |id|
-          !related_ids.include? id
-        end.map do |id|
+        !related_ids.include? id
+      end.map do |id|
         sub_cat = SubCategory.find_by(id: id)
         post_categories.new(sub_category_id: sub_cat.id)
       end.each(&:save!)
