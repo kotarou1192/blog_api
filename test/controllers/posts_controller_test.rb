@@ -63,7 +63,7 @@ class PostsControllerTest < ActionDispatch::IntegrationTest
     end
     categories = SubCategory.all.map(&:id)
 
-    put "/users/#{@user.name}/posts/#{@post.id}", params: { additional_category_ids: categories.shift(5) },
+    put "/users/#{@user.name}/posts/#{@post.id}", params: { sub_category_ids: categories.shift(5) },
                                                   headers: authorize_header
 
     edited_post = Post.find(@post.id)
@@ -79,13 +79,14 @@ class PostsControllerTest < ActionDispatch::IntegrationTest
     end
     categories = SubCategory.all.map(&:id)
 
-    put "/users/#{@user.name}/posts/#{@post.id}", params: { additional_category_ids: categories.shift(5) },
+    put "/users/#{@user.name}/posts/#{@post.id}", params: { sub_category_ids: categories.shift(5) },
                                                   headers: authorize_header
 
     get "/users/#{@user.name}/posts/#{@post.id}"
     res = JSON.parse @response.body
     cache = res['categories'].dup
-    delete "/users/#{@user.name}/posts/#{@post.id}/category/#{cache[0]['tag_id']}", headers: authorize_header
+    put "/users/#{@user.name}/posts/#{@post.id}", params: { title: @post.title, body: @post.body },
+                                                  headers: authorize_header
     get "/users/#{@user.name}/posts/#{@post.id}"
     res = JSON.parse @response.body
     assert_not res['categories'].size == cache.size
@@ -102,7 +103,7 @@ class PostsControllerTest < ActionDispatch::IntegrationTest
     title = 'edited_title'
     body = 'edited_body'
 
-    put "/users/#{@user.name}/posts/#{@post.id}", params: { title: title, body: body, additional_category_ids: categories.shift(5) },
+    put "/users/#{@user.name}/posts/#{@post.id}", params: { title: title, body: body, sub_category_ids: categories.shift(5) },
                                                   headers: authorize_header
 
     edited_post = Post.find(@post.id)

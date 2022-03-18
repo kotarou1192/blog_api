@@ -30,9 +30,23 @@ class Post < ApplicationRecord
                  .includes(post_categories: :sub_category, user: { icon_attachment: :blob })
   end
 
-  def add_categories!(sub_category_ids: [])
+  def update_categories!(sub_category_ids: [])
+    related_tags = if sub_category_ids.empty?
+                     PostCategory.where(post_id: id)
+                   else
+                     PostCategory.where(sub_category_id: sub_category_ids, post_id: id)
+                   end
+    related_ids = related_tags.map(&:sub_category_id)
     transaction do
-      sub_category_ids.map do |id|
+      # 減っているものを消す
+      related_tags.filter do |tag|
+        !sub_category_ids.include? tag.sub_category_id
+      end.each(&:destroy!)
+      # 無いものを足す
+      sub_category_ids
+        .filter do |id|
+        !related_ids.include? id
+      end.map do |id|
         sub_cat = SubCategory.find_by(id: id)
         post_categories.new(sub_category_id: sub_cat.id)
       end.each(&:save!)
@@ -40,9 +54,23 @@ class Post < ApplicationRecord
     true
   end
 
-  def add_categories(sub_category_ids: [])
+  def update_categories(sub_category_ids: [])
+    related_tags = if sub_category_ids.empty?
+                     PostCategory.where(post_id: id)
+                   else
+                     PostCategory.where(sub_category_id: sub_category_ids, post_id: id)
+                   end
+    related_ids = related_tags.map(&:sub_category_id)
     transaction do
-      sub_category_ids.map do |id|
+      # 減っているものを消す
+      related_tags.filter do |tag|
+        !sub_category_ids.include? tag.sub_category_id
+      end.each(&:destroy!)
+      # 無いものを足す
+      sub_category_ids
+        .filter do |id|
+          !related_ids.include? id
+        end.map do |id|
         sub_cat = SubCategory.find_by(id: id)
         post_categories.new(sub_category_id: sub_cat.id)
       end.each(&:save!)

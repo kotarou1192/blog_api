@@ -23,7 +23,7 @@ class SearchPostsControllerTest < ActionDispatch::IntegrationTest
 
     10.times.map do |i|
       po = user.posts.create(title: "title #{i}", body: "body #{i}")
-      po.add_categories(sub_category_ids: ids[0..i])
+      po.update_categories(sub_category_ids: ids[0..i])
     end
 
     get '/search/posts?keywords=_&category_scope=base&category_ids=' << cat.id.to_s

@@ -17,17 +17,18 @@ class PostCategoryTest < ActiveSupport::TestCase
 
   test 'should be created' do
     id = @categories[0][:id]
-    assert @post.add_categories(sub_category_ids: [id])
+    assert @post.update_categories(sub_category_ids: [id])
   end
 
-  test 'should be invalid' do
+  test 'should be non effected' do
     id = @categories[0][:id]
-    @post.add_categories(sub_category_ids: [id])
-    assert_not @post.add_categories(sub_category_ids: [id])
+    @post.update_categories(sub_category_ids: [id])
+    @post.update_categories(sub_category_ids: [id])
+    assert @post.post_categories.size == 1
   end
 
   test 'too manu categories should be rejected' do
     ids = @categories[0..10].map { |cat| cat[:id] }
-    assert_not @post.add_categories(sub_category_ids: ids)
+    assert_not @post.update_categories(sub_category_ids: ids)
   end
 end
