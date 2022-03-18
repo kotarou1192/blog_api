@@ -86,11 +86,12 @@ class PostsControllerTest < ActionDispatch::IntegrationTest
     get "/users/#{@user.name}/posts/#{@post.id}"
     res = JSON.parse @response.body
     first_size = res['categories'].size
-    put "/users/#{@user.name}/posts/#{@post.id}", params: { title: @post.title, body: @post.body, sub_category_ids: selected[0..2] },
+    put "/users/#{@user.name}/posts/#{@post.id}", params: { title: @post.title, body: @post.body, sub_category_ids: selected[0..2] + categories[0..4] },
                                                   headers: authorize_header
     get "/users/#{@user.name}/posts/#{@post.id}"
     res = JSON.parse @response.body
-    assert_not res['categories'].size == first_size
+    # assert_not res['categories'].size == first_size
+    assert res['categories'].map { |hash| hash['value']['sub_category_name'] }.join == 'abcfghij'
   end
 
   test 'should be able to edit and add category to post' do

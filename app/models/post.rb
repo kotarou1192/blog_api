@@ -31,16 +31,12 @@ class Post < ApplicationRecord
   end
 
   def update_categories!(sub_category_ids: [])
-    related_tags = if sub_category_ids.empty?
-                     PostCategory.where(post_id: id)
-                   else
-                     PostCategory.where(sub_category_id: sub_category_ids.map(&:to_i), post_id: id)
-                   end
+    related_tags = PostCategory.where(post_id: id)
     related_ids = related_tags.map(&:sub_category_id)
     transaction do
       # 減っているものを消す
       related_tags.filter do |tag|
-        sub_category_ids.map(&:to_i).include? tag.sub_category_id
+        !sub_category_ids.map(&:to_i).include? tag.sub_category_id
       end.each(&:destroy!)
       # 無いものを足す
       sub_category_ids
@@ -56,16 +52,12 @@ class Post < ApplicationRecord
   end
 
   def update_categories(sub_category_ids: [])
-    related_tags = if sub_category_ids.empty?
-                     PostCategory.where(post_id: id)
-                   else
-                     PostCategory.where(sub_category_id: sub_category_ids.map(&:to_i), post_id: id)
-                   end
+    related_tags = PostCategory.where(post_id: id)
     related_ids = related_tags.map(&:sub_category_id)
     transaction do
       # 減っているものを消す
       related_tags.filter do |tag|
-        sub_category_ids.map(&:to_i).include? tag.sub_category_id
+        !sub_category_ids.map(&:to_i).include? tag.sub_category_id
       end.each(&:destroy!)
       # 無いものを足す
       sub_category_ids
