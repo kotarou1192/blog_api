@@ -59,6 +59,7 @@ class UserControllerTest < ActionDispatch::IntegrationTest
     assert updated_user.explanation == new_exp
   end
 
+  # TODO: fileのアップロードがサイズ以外の理由でfailedしてるので治す
   test 'too large image should be rejected' do
     new_name = 'new-name'
     new_exp = 'this is my account.'
