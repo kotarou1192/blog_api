@@ -4,6 +4,8 @@ Rails.application.routes.draw do
   resources :users, only: %i[show create destroy update]
   resources :users, param: :name, only: %i[show] do
     resources :posts, only: %i[index show create destroy update]
+    post 'images/new', to: 'image#create'
+    delete 'icon', to: 'image#remove_icon'
   end
   get '/search/users', to: 'search_users#index'
   get '/search/posts', to: 'search_posts#index'

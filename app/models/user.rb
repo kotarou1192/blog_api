@@ -3,6 +3,8 @@ class User < ApplicationRecord
   has_one_attached :icon
   attr_accessor :password
 
+  has_many_attached :images
+
   EXP_CHAR_NUMBERS = 255
   MAX_ICON_SIZE = 2
 
@@ -61,6 +63,15 @@ class User < ApplicationRecord
     end
   end
 
+  # 画像をアップロードする
+  def upload_image(img_from_params)
+    img = to_blob img_from_params, max_width: 1800, max_height: 900, key_prefix: "#{name}/uploads"
+    images.attach(img)
+    img.key
+  rescue ActiveSupport => e
+    false
+  end
+
   def update_with_icon(params)
     transaction do
       update!(explanation: params[:explanation]) if params[:explanation]
@@ -90,13 +101,13 @@ class User < ApplicationRecord
 
   private
 
-  def to_blob(file)
+  def to_blob(file, max_width: 800, max_height: 400, key_prefix: 'icons')
     if Rails.configuration.active_storage.service == :amazon
-      p ext_from_content_type(file)
-      key = "icons/#{SecureRandom.uuid}.#{ext_from_content_type(file)}"
+      key = "#{key_prefix}/#{SecureRandom.uuid}.#{ext_from_content_type(file)}"
       blob = ActiveStorage::Blob.new(key: key,
                                      filename: file.original_filename, content_type: file.content_type)
-      blob.upload file.to_io
+      tmp = ImageProcessing::MiniMagick.source(file).resize_to_limit(max_width, max_height).call
+      blob.upload tmp.to_io
 
       blob
     else
