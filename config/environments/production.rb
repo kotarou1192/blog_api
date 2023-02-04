@@ -103,5 +103,18 @@ Rails.application.configure do
   # config.active_record.database_resolver = ActiveRecord::Middleware::DatabaseSelector::Resolver
   # config.active_record.database_resolver_context = ActiveRecord::Middleware::DatabaseSelector::Resolver::Session
 
+  config.action_mailer.raise_delivery_errors = true
+  config.action_mailer.delivery_method = :smtp
+  host = ENV['HOST_NAME']
+  config.action_mailer.default_url_options = { host:, protocol: 'https' }
+  config.action_mailer.smtp_settings = {
+    address: ENV['EMAIL_HOST'],
+    port: 587,
+    user_name: ENV['EMAIL_USER_NAME'],
+    password: ENV['EMAIL_PASSWORD'],
+    authentication: ENV['EMAIL_AUTHENTICATION'],
+    enable_starttls_auto: true
+  }
+
   config.active_storage.service = :amazon
 end

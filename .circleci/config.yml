@@ -5,18 +5,12 @@
 
 version: 2.1
 workflows:
-  test_build:
+  test-job:
     jobs:
       - bundle_install
       - test:
           requires:
             - bundle_install
-      - deploy:
-          requires:
-            - test
-          filters:
-            branches:
-              only: master
 
 jobs:
   bundle_install:
@@ -38,6 +32,9 @@ jobs:
       - run:
           name: install dependencies
           command: |
+            sudo apt update -y
+            sudo apt upgrade -y
+            sudo apt install libmagickwand-dev
             gem install bundler -v 2.1.4
             bundle install --jobs=4 --retry=3 --path vendor/bundle
       # save bundle cache
@@ -55,7 +52,7 @@ jobs:
         environment:
           - POSTGRES_USER: postgres
           - POSTGRES_HOST_AUTH_METHOD: trust
-      - image: redis:3.2.11
+      - image: redis:6.2
         environment:
           REDIS_URL: redis://localhost:6379
     working_directory: ~/todo_tree
@@ -68,33 +65,8 @@ jobs:
       - run: sudo apt update
       - run: sudo apt install postgresql-client
       - run: bundle install --jobs=4 --retry=3 --path vendor/bundle
-      - run:
-          name: rename database.yml.ci
-          command: mv config/database.yml.ci config/database.yml
       - run: bundle exec rails db:create
       - run: bundle exec rails db:migrate
       - run:
           name: run tests
           command: bundle exec rails test
-
-  deploy:
-    docker:
-      # check https://circleci.com/docs/ja/2.0/circleci-images/#postgresql
-      - image: circleci/ruby:2.7.2
-        environment:
-          - BUNDLER_VERSION: 2.1.4
-          - RAILS_ENV: 'development'
-
-    working_directory: ~/todo_tree
-
-    steps:
-      - checkout
-      - restore_cache:
-          keys:
-            - v1-dependencies-{{ checksum "Gemfile.lock" }}
-            - v1-dependencies
-      - run: bundle install --jobs=4 --retry=3 --path vendor/bundle
-      # run capistrano deploy
-      - run:
-          name: deploy
-          command: bundle exec cap production deploy
