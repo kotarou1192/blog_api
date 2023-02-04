@@ -35,7 +35,7 @@ jobs:
             sudo apt update -y
             sudo apt upgrade -y
             sudo apt install libmagickwand-dev
-            gem install bundler -v 2.4.6
+            gem install bundler -v 2.1.4
             bundle install --jobs=4 --retry=3 --path vendor/bundle
       # save bundle cache
       - save_cache:
@@ -52,7 +52,7 @@ jobs:
         environment:
           - POSTGRES_USER: postgres
           - POSTGRES_HOST_AUTH_METHOD: trust
-      - image: redis:3.2.11
+      - image: redis:6.2
         environment:
           REDIS_URL: redis://localhost:6379
     working_directory: ~/todo_tree
