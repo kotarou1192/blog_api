@@ -38,7 +38,10 @@ jobs:
       - run:
           name: install dependencies
           command: |
-            gem install bundler -v 2.1.4
+            sudo apt update -y
+            sudo apt upgrade -y
+            sudo apt install libmagickwand-dev
+            gem install bundler -v 2.4.6
             bundle install --jobs=4 --retry=3 --path vendor/bundle
       # save bundle cache
       - save_cache:
