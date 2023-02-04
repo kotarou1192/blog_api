@@ -23,6 +23,7 @@ services:
       - fromGroup: blog-api-prod
   # A Docker worker service
   - type: worker
+    region: singapore
     name: sidekiq
     env: docker
     plan: starter # optional (defaults to starter)
