@@ -1,4 +1,4 @@
-FROM ruby:3.2.0-bullseye
+FROM ruby:2.7.2-bullseye
 
 EXPOSE 3000
 
