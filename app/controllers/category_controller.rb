@@ -1,6 +1,6 @@
 class CategoryController < ApplicationController
   def index
-    categories = Category.all
+    categories = Category.all.includes(:sub_categories)
     category_list = categories.map do |category|
       [category.name, { category_id: category.id, sub_categories: category.sub_categories.map(&:to_data) }]
     end.to_h
