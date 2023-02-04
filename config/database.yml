@@ -5,6 +5,7 @@ default: &default
   encoding: utf-8
   lang: utf-8
   database: todo_tree
+  port: 5432
 
 development:
   <<: *default
