@@ -1,0 +1,52 @@
+services:
+  # A Docker web service
+  - type: web
+    region: singapore
+    name: blog-api
+    env: docker
+    plan: starter # optional (defaults to starter)
+    branch: master # optional (defaults to master)
+    dockerCommand: ./sbin/web # optional (defaults to Dockerfile command)
+    numInstances: 1 # optional (defaults to 1)
+    healthCheckPath: /
+    envVars:
+      - key: REDIS_HOST
+        fromService:
+          type: redis
+          name: sidekiq-backend
+          property: host # available properties are listed below
+      - key: REDIS_PORT
+        fromService:
+          type: redis
+          name: sidekiq-backend
+          property: port
+      - fromGroup: blog-api-prod
+  # A Docker worker service
+  - type: worker
+    name: sidekiq
+    env: docker
+    plan: starter # optional (defaults to starter)
+    branch: master # optional (defaults to master)
+    numInstances: 1 # optional (defaults to 1)
+    dockerCommand: ./sbin/sidekiq
+    envVars:
+      - key: REDIS_HOST
+        fromService:
+          type: redis
+          name: sidekiq-backend
+          property: host # available properties are listed below
+      - key: REDIS_PORT
+        fromService:
+          type: redis
+          name: sidekiq-backend
+          property: port
+      - fromGroup: blog-api-prod
+  # A Redis instance
+  - type: redis
+    region: singapore
+    ipAllowList: # required
+      - source: 0.0.0.0/0
+        description: everywhere
+    name: sidekiq-backend
+    plan: free # optional (defaults to starter)
+    maxmemoryPolicy: noeviction # optional (defaults to allkeys-lru)
