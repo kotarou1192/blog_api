@@ -33,3 +33,4 @@
 .session.key
 dump.rdb
 images
+vendor/bundle/*
