@@ -34,8 +34,8 @@ module TodoTree
     # Initialize configuration defaults for originally generated Rails version.
     config.load_defaults 6.0
     # TODO: ここのlocalhostををどうにかする
-    hosts_list = %w[api.blog-md.net takashiii-hq-api-production blog-md.net
-                    local.takashiii-hq.com localhost:8080]
+    hosts_list = %w[api.blog-md.net takashiii-hq-api-production blog-md.net]
+    hosts_list += ENV['ALLOWED_HOSTS'].split(',') if ENV['ALLOWED_HOSTS']
 
     config.active_job.queue_adapter = :sidekiq
 
